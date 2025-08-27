@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FutLive Pro</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background: #222; color: #fff; padding: 10px; text-align: center; }
+    .container { display: flex; gap: 10px; padding: 10px; }
+    .team { flex: 1; background: #fff; border-radius: 8px; padding: 10px; }
+    .team h2 { text-align: center; }
+    .player-list { min-height: 300px; border: 2px dashed #ccc; border-radius: 6px; padding: 5px; }
+    .player { background: #eee; margin: 4px 0; padding: 6px; border-radius: 4px; cursor: grab; }
+    .substitution { display: flex; justify-content: space-between; margin-top: 10px; }
+    #field { position: relative; width: 100%; height: 400px; background: green; border-radius: 8px; margin-top: 20px; }
+    .field-player { position: absolute; width: 50px; height: 50px; border-radius: 50%; background: yellow; text-align: center; line-height: 50px; cursor: grab; }
+    .events, .overlays { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; }
+    iframe { width: 100%; height: 150px; border: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FutLive Pro</h1>
+    <div id="scoreboard">FLA 2 - 1 VAS | 2T 45:00</div>
+  </header>
+
+  <div class="container">
+    <div class="team">
+      <h2>Flamengo</h2>
+      <h3>Titulares</h3>
+      <div id="fla-starters" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <h3>Reservas</h3>
+      <div id="fla-reserves" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+
+    <div class="team">
+      <h2>Vasco</h2>
+      <h3>Titulares</h3>
+      <div id="vas-starters" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <h3>Reservas</h3>
+      <div id="vas-reserves" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+
+    <div class="events">
+      <h3>Histórico de Eventos</h3>
+      <div id="event-log"></div>
+    </div>
+  </div>
+
+  <div id="field"></div>
+
+  <div class="overlays">
+    <h3>Overlays OBS</h3>
+    <p><a href="overlay_placar.html" target="_blank">Placar</a></p>
+    <p><a href="overlay_notificacoes.html" target="_blank">Notificações</a></p>
+    <p><a href="overlay_escalacao.html" target="_blank">Escalação</a></p>
+  </div>
+
+  <script>
+    let playerId = 0;
+
+    function createPlayer(name) {
+      const div = document.createElement("div");
+      div.className = "player";
+      div.draggable = true;
+      div.id = "player-" + (++playerId);
+      div.ondragstart = drag;
+      div.innerText = name;
+      return div;
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      ev.target.appendChild(document.getElementById(data));
+    }
+
+    // Demo players
+    ["Gabigol","Arrascaeta","Pedro","Everton"]
+      .forEach(p => document.getElementById("fla-reserves").appendChild(createPlayer(p)));
+    ["Payet","Rossi","Coutinho","Vegetais"]
+      .forEach(p => document.getElementById("vas-reserves").appendChild(createPlayer(p)));
+
+    // Campo com jogadores arrastáveis
+    ["1","2","3","4","5","6","7","8","9","10","11"].forEach((n, i) => {
+      const div = document.createElement("div");
+      div.className = "field-player";
+      div.style.left = (50 + (i%4)*100) + "px";
+      div.style.top = (50 + Math.floor(i/4)*100) + "px";
+      div.innerText = n;
+      div.draggable = true;
+      div.id = "fp-"+n;
+      div.ondragstart = drag;
+      document.getElementById("field").appendChild(div);
+    });
+  </script>
+</body>
+</html>
+
+<!-- overlay_placar.html -->
+<!DOCTYPE html>
+<html><body style="background:black;color:white;font-size:30px;text-align:center;">FLA 2 - 1 VAS | 2T 45:00</body></html>
+
+<!-- overlay_notificacoes.html -->
+<!DOCTYPE html>
+<html><body style="background:transparent;color:yellow;font-size:24px;">Gol - Gabigol</body></html>
+
+<!-- overlay_escalacao.html -->
+<!DOCTYPE html>
+<html><body style="background:#111;color:white;font-size:18px;">
+  <h3>Escalação</h3>
+  <ul>
+    <li>1 - Goleiro</li>
+    <li>2 - Lateral</li>
+    <li>3 - Zagueiro</li>
+    <!-- ... -->
+  </ul>
+</body></html>
