@@ -1,166 +1,548 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FutLive Pro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
-    header { background:#222; color:#fff; padding:10px; text-align:center; }
-    .container { display:flex; flex-wrap:wrap; gap:10px; padding:10px; }
-    .box { background:#fff; padding:10px; border-radius:8px; flex:1 1 300px; }
-    h2,h3 { margin:5px 0; }
-    input,select,button { margin:3px 0; padding:5px; }
-    .team-list, .game-list { max-height:200px; overflow:auto; }
-    .event-log { max-height:200px; overflow:auto; border:1px solid #ccc; padding:5px; }
-    .overlay { text-align:center; font-size:2em; }
-    .hidden { display:none; }
+    :root{
+      --bg:#0f1221;             /* fundo escuro elegante */
+      --panel:#101423;          /* cartões */
+      --muted:#1a1f35;          /* bordas / hover */
+      --text:#e8edf7;           /* texto */
+      --sub:#9aa6c7;            /* subtítulos */
+      --accent:#2563eb;         /* azul */
+      --good:#10b981;           /* verde */
+      --warn:#f59e0b;           /* amarelo */
+      --bad:#ef4444;            /* vermelho */
+      --chip:#11162a;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    a{color:var(--text)}
+    .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.35));backdrop-filter:blur(8px);border-bottom:1px solid #1b2240}
+    .brand{font-weight:800;letter-spacing:.3px}
+    .nav a{margin:0 10px;text-decoration:none;color:var(--sub)}
+    .nav a.active{color:#fff}
+
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .grid{display:grid;gap:16px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    .grid.cols-3{grid-template-columns:2fr 2fr 1.2fr}
+
+    .card{background:var(--panel);border:1px solid var(--muted);border-radius:var(--radius);padding:16px}
+    .card h2{margin:0 0 8px;font-size:18px}
+    .muted{color:var(--sub);font-size:13px}
+
+    .btn{appearance:none;border:1px solid transparent;background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#151b34;border-color:#283057}
+    .btn.ghost{background:transparent;border-color:#283057;color:#c8d2f3}
+    .btn.good{background:var(--good)}
+    .btn.warn{background:var(--warn);color:#111}
+    .btn.bad{background:var(--bad)}
+    .btn.sm{padding:6px 10px;border-radius:10px;font-size:12px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    input,select,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #283057;background:#0e1430;color:#e7ebff}
+
+    .list{display:flex;flex-direction:column;gap:10px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:#0e1330;border:1px solid #1c2447;border-radius:12px}
+
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:var(--chip);border:1px solid #1b2240;color:#cbd5f7;font-size:12px}
+    .chip .dot{width:8px;height:8px;border-radius:999px;background:#4b5563}
+
+    .team-pill{display:flex;align-items:center;gap:10px}
+    .crest{width:28px;height:28px;border-radius:8px;background:#222;border:1px solid #333;display:grid;place-items:center;overflow:hidden}
+    .crest img{width:100%;height:100%;object-fit:cover}
+
+    .scorebar{display:flex;align-items:center;justify-content:center;gap:18px}
+    .scorebar .team{display:flex;align-items:center;gap:10px;font-weight:800}
+    .score{font-size:42px;font-weight:900;letter-spacing:1px}
+    .clock{font-variant-numeric:tabular-nums;font-weight:700}
+
+    .columns{display:grid;grid-template-columns:1fr 1fr 340px;gap:16px}
+
+    .squad{display:flex;flex-direction:column;gap:12px}
+    .squad .title{display:flex;align-items:center;justify-content:space-between}
+    .player{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:12px;background:#0c112a;border:1px solid #1a2143}
+    .player.inactive{opacity:.5}
+    .num{width:40px;height:34px;border-radius:10px;background:#0b1030;border:1px solid #1b2244;display:grid;place-items:center;font-weight:800}
+    .badges{display:flex;gap:8px}
+
+    .pill{display:inline-flex;gap:6px;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid #293056;background:#111735;font-weight:700;font-size:12px}
+
+    .kanban{display:grid;grid-template-columns:1fr;gap:10px;min-height:100px;padding:10px;border:1px dashed #2a3466;border-radius:12px}
+    .kanban[data-zone="bench"]{background:#0a1030}
+    .drag-hint{font-size:12px;color:#8fa3d2}
+
+    .evt{padding:8px 10px;border-radius:10px;background:#0f1537;border:1px solid #253168}
+
+    .hidden{display:none!important}
+
+    /* Overlays (chroma) */
+    .overlay-root{background:#00ff00;height:100vh;margin:0;display:grid;place-items:center}
+    .overlay-card{min-width:720px;max-width:90vw;border-radius:18px;padding:12px 16px;background:rgba(0,0,0,.85)}
+    .overlay-line{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .overlay-team{display:flex;align-items:center;gap:10px;font-weight:900}
+    .overlay-score{font-size:48px;font-weight:900}
+    .overlay-clock{font-variant-numeric:tabular-nums;font-size:24px}
+
+    .tag{padding:2px 8px;border-radius:999px;border:1px solid #2a3261;color:#c8d1f3;background:#0e153a;font-size:12px}
+
+    .linkbox{display:flex;align-items:center;gap:10px}
+    .linkbox input{font-family:ui-monospace,Menlo,Consolas,monospace}
   </style>
 </head>
 <body>
-<header>
-  <h1>FutLive Pro</h1>
-  <nav>
-    <a href="?">Gerenciar</a> | 
-    <a href="?overlay=placar" target="_blank">Overlay Placar</a> | 
-    <a href="?overlay=notificacoes" target="_blank">Overlay Notificações</a> | 
-    <a href="?overlay=escalacao" target="_blank">Overlay Escalação</a>
-  </nav>
-</header>
-
-<div id="app"></div>
-
-<script>
-const params = new URLSearchParams(window.location.search);
-const overlay = params.get("overlay");
-
-// --------- DADOS ---------
-let data = JSON.parse(localStorage.getItem("futlive-data")) || {
-  teams: [], games: [], events:[]
-};
-
-function saveData(){ localStorage.setItem("futlive-data", JSON.stringify(data)); }
-
-// --------- VIEWS ---------
-function renderManager(){
-  document.getElementById("app").innerHTML = `
-    <div class="container">
-      <div class="box">
-        <h2>Times</h2>
-        <input id="teamName" placeholder="Nome do time">
-        <button onclick="addTeam()">Adicionar</button>
-        <div class="team-list">${data.teams.map((t,i)=>`<div>${i+1}. ${t.name} (${t.players.length}/21)</div>`).join("")}</div>
-      </div>
-      <div class="box">
-        <h2>Jogos</h2>
-        <select id="home">${optionsTeams()}</select> vs 
-        <select id="away">${optionsTeams()}</select><br>
-        <input id="date" type="date"> <input id="time" type="time"><br>
-        <button onclick="addGame()">Agendar</button>
-        <div class="game-list">${data.games.map((g,i)=>`<div>${i+1}. ${g.home} x ${g.away} (${g.date} ${g.time})</div>`).join("")}</div>
-      </div>
-      <div class="box">
-        <h2>Partida em Tempo Real</h2>
-        <button onclick="startMatch()">Iniciar</button>
-        <div id="match"></div>
-      </div>
-      <div class="box">
-        <h2>Eventos</h2>
-        <div class="event-log">${data.events.map(e=>`<div>${e}</div>`).join("")}</div>
-      </div>
+  <div class="topbar">
+    <div class="brand">⚽ FutLive Pro</div>
+    <div class="nav">
+      <a href="#/" id="nav-home">Início</a>
+      <a href="#/teams" id="nav-teams">Gerenciar Times</a>
     </div>
-  `;
-}
+    <div style="margin-left:auto" class="muted">Dados salvos no navegador (localStorage)</div>
+  </div>
 
-function renderOverlayPlacar(){
-  document.getElementById("app").innerHTML = `
-    <div class="overlay">
-      <div>${currentGame?.home || "Time A"} ${score.home} - ${score.away} ${currentGame?.away || "Time B"}</div>
-      <div>${timerText()}</div>
-    </div>
-  `;
-}
-function renderOverlayNotificacoes(){
-  document.getElementById("app").innerHTML = `
-    <div class="overlay">
-      ${lastEvent ? lastEvent : "Sem eventos"}
-    </div>
-  `;
-}
-function renderOverlayEscalacao(){
-  document.getElementById("app").innerHTML = `
-    <div class="overlay">
-      <h2>${currentGame?.home || "Time A"}</h2>
-      <div>${listPlayers(currentGame?.home)}</div>
-      <h2>${currentGame?.away || "Time B"}</h2>
-      <div>${listPlayers(currentGame?.away)}</div>
-    </div>
-  `;
-}
+  <div class="wrap" id="app"></div>
 
-// --------- FUNÇÕES ---------
-function optionsTeams(){
-  return data.teams.map(t=>`<option>${t.name}</option>`).join("");
-}
-function addTeam(){
-  const name=document.getElementById("teamName").value.trim();
-  if(!name) return;
-  if(data.teams.length>=20){alert("Limite de 20 times.");return;}
-  data.teams.push({name, players:[]});
-  saveData(); renderManager();
-}
-function addGame(){
-  if(data.games.length>=2){alert("Limite de 2 jogos agendados.");return;}
-  const home=document.getElementById("home").value;
-  const away=document.getElementById("away").value;
-  const date=document.getElementById("date").value;
-  const time=document.getElementById("time").value;
-  data.games.push({home,away,date,time});
-  saveData(); renderManager();
-}
+  <script>
+  /*********************************
+   * Persistência e Modelo de Dados
+   *********************************/
+  const LS_KEY = 'futlive-pro-v1';
+  const uid = () => crypto.randomUUID();
 
-// ---- Partida ----
-let currentGame=null, score={home:0,away:0}, timer=0, interval=null, lastEvent=null;
+  const DefaultState = () => ({
+    teams: [],              // {id,name,crest,color,players:[{id,number,name,position}]}
+    games: [],              // {id,homeId,awayId,competition,date,time,venue,status:'scheduled'|'live'|'ended', state:{...}}
+  });
 
-function startMatch(){
-  if(!data.games.length){alert("Agende um jogo.");return;}
-  currentGame=data.games[0]; // pega o primeiro jogo agendado
-  score={home:0,away:0}; timer=0; data.events=[]; saveData();
-  document.getElementById("match").innerHTML=`
-    <div><b>${currentGame.home}</b> ${score.home} - ${score.away} <b>${currentGame.away}</b></div>
-    <div id="timer">${timerText()}</div>
-    <button onclick="goal('home')">Gol ${currentGame.home}</button>
-    <button onclick="goal('away')">Gol ${currentGame.away}</button>
-    <button onclick="addCard('Amarelo')">Cartão Amarelo</button>
-    <button onclick="addCard('Vermelho')">Cartão Vermelho</button>
-    <button onclick="toggleTimer()">Play/Pause</button>
-  `;
-}
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || DefaultState(); }
+    catch{ return DefaultState(); }
+  }
+  function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  let state = load();
 
-function timerText(){ let m=Math.floor(timer/60),s=timer%60; return `${m}:${s.toString().padStart(2,"0")}`; }
-function toggleTimer(){
-  if(interval){ clearInterval(interval); interval=null; }
-  else{ interval=setInterval(()=>{timer++; document.getElementById("timer").innerText=timerText();},1000); }
-}
-function goal(team){
-  score[team]++; lastEvent=`Gol do ${team==="home"?currentGame.home:currentGame.away}`;
-  data.events.push(lastEvent); saveData(); renderManager();
-}
-function addCard(tipo){
-  lastEvent=`${tipo} em campo`;
-  data.events.push(lastEvent); saveData(); renderManager();
-}
-function listPlayers(teamName){
-  const t=data.teams.find(t=>t.name===teamName);
-  if(!t) return "(sem jogadores)";
-  return t.players.map(p=>p.name).join(", ");
-}
+  /****************
+   * Utilidades UI
+   ****************/
+  const $ = sel => document.querySelector(sel);
+  const el = (tag,attrs={},children=[])=>{
+    const n=document.createElement(tag);
+    Object.entries(attrs).forEach(([k,v])=>{
+      if(k==='class') n.className=v; else if(k==='html') n.innerHTML=v; else if(k.startsWith('on')) n.addEventListener(k.substring(2),v); else n.setAttribute(k,v);
+    });
+    (Array.isArray(children)?children:[children]).filter(Boolean).forEach(c=>n.appendChild(typeof c==='string'?document.createTextNode(c):c));
+    return n;
+  }
 
-// --------- RENDER ---------
-if(overlay==="placar") renderOverlayPlacar();
-else if(overlay==="notificacoes") renderOverlayNotificacoes();
-else if(overlay==="escalacao") renderOverlayEscalacao();
-else renderManager();
-</script>
+  function teamById(id){ return state.teams.find(t=>t.id===id); }
+  function gameById(id){ return state.games.find(g=>g.id===id); }
+
+  function sync(){ save(); window.dispatchEvent(new Event('storage')); }
+
+  /***********************
+   * Router (hash-based)
+   ***********************/
+  const routes = {
+    '#/': HomeView,
+    '#/teams': TeamsView,
+    '#/game': GameView,            // #/game?id=...
+    '#/overlay/score': OverlayScore,
+    '#/overlay/notify': OverlayNotify,
+    '#/overlay/lineup': OverlayLineup,
+  };
+  function parseQuery(){ const p=new URLSearchParams(location.hash.split('?')[1]||''); const o={}; p.forEach((v,k)=>o[k]=v); return o; }
+  function mount(){
+    const hash = location.hash.split('?')[0] || '#/';
+    document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+    if(hash==="#/") $('#nav-home').classList.add('active');
+    if(hash==="#/teams") $('#nav-teams').classList.add('active');
+    const View = routes[hash] || HomeView;
+    $('#app').innerHTML='';
+    View(parseQuery());
+  }
+  window.addEventListener('hashchange', mount);
+
+  /**************
+   * Início
+   **************/
+  function HomeView(){
+    const canSchedule = state.games.filter(g=>g.status==='scheduled').length < 2;
+
+    const list = el('div',{class:'card'},[
+      el('h2',{},['Partidas agendadas']),
+      el('div',{class:'list',id:'gamesList'}, state.games.length? state.games.filter(g=>g.status==='scheduled').map(renderGameCard) : [el('div',{class:'muted'},['Nenhuma partida. Agende abaixo.'])])
+    ]);
+
+    const form = el('div',{class:'card'},[
+      el('h2',{},['Agendar partida']),
+      el('div',{class:'grid cols-2'},[
+        selectTeam('Mandante','homeId'),
+        selectTeam('Visitante','awayId'),
+      ]),
+      el('div',{class:'grid cols-2',style:'margin-top:10px'},[
+        input('Competição','competition'),
+        input('Local','venue'),
+      ]),
+      el('div',{class:'grid cols-2'},[
+        input('Data','date','date'),
+        input('Hora','time','time')
+      ]),
+      el('div',{},[
+        el('button',{class:'btn', disabled:!canSchedule, onclick:()=>{
+          const homeId = $('#homeId').value, awayId = $('#awayId').value;
+          if(!homeId||!awayId||homeId===awayId) return alert('Selecione dois times diferentes.');
+          const g={id:uid(),homeId,awayId,competition:$('#competition').value||'Jogo',venue:$('#venue').value||'',date:$('#date').value||'',time:$('#time').value||'',status:'scheduled',state:defaultGameState()};
+          state.games.push(g); sync(); mount();
+        }},['+ Agendar partida']),
+        !canSchedule? el('div',{class:'muted',style:'margin-top:8px'},['Limite desta versão: 2 partidas agendadas.']) : null
+      ])
+    ]);
+
+    const teamsCard = el('div',{class:'card'},[
+      el('h2',{},['Times cadastrados']),
+      el('div',{class:'list'}, state.teams.length? state.teams.map(t=>renderTeamRow(t,true)) : [el('div',{class:'muted'},['Nenhum time. Cadastre em "Gerenciar Times".'])])
+    ]);
+
+    const grid = el('div',{class:'grid cols-2'},[list,form]);
+    $('#app').appendChild(grid);
+    $('#app').appendChild(teamsCard);
+  }
+
+  function renderGameCard(g){
+    const ht = teamById(g.homeId), at = teamById(g.awayId);
+    const openBtn = el('button',{class:'btn good sm',onclick:()=>{ g.status='live'; sync(); location.hash = `#/game?id=${g.id}`; }},['Abrir partida']);
+    const row = el('div',{class:'row'},[
+      el('div',{class:'team-pill'},[
+        crest(ht), el('b',{},[ht?.name||'Time A']), el('span',{class:'muted'},[' x ']), crest(at), el('b',{},[at?.name||'Time B'])
+      ]),
+      el('div',{},[
+        el('span',{class:'chip'},[g.competition||'Competição']),
+        el('span',{class:'chip'},[g.date||'--',' ',g.time||'--']),
+        g.venue? el('span',{class:'chip'},[g.venue]):null
+      ]),
+      openBtn
+    ]);
+    return row;
+  }
+
+  /*******************
+   * Gerenciar Times
+   *******************/
+  function TeamsView(){
+    const canAdd = state.teams.length < 20;
+
+    const list = el('div',{class:'card'},[
+      el('h2',{},['Times (',state.teams.length,'/20)']),
+      el('div',{class:'list',id:'teamsList'}, state.teams.length? state.teams.map(t=>renderTeamRow(t,false,true)) : [el('div',{class:'muted'},['Nenhum time cadastrado.'])])
+    ]);
+
+    const form = el('div',{class:'card'},[
+      el('h2',{},['+ Criar time']),
+      input('Nome do time','tname'),
+      input('URL do escudo (opcional)','tcrest','url'),
+      input('Cor principal (hex)','tcolor','text','#d1d5db'),
+      el('div',{},[
+        el('button',{class:'btn',disabled:!canAdd,onclick:()=>{
+          const name=$('#tname').value.trim(); if(!name) return alert('Nome obrigatório');
+          const team={id:uid(),name,crest:$('#tcrest').value||'',color:$('#tcolor').value||'#d1d5db',players:[]};
+          state.teams.push(team); sync(); mount();
+        }},['Salvar time'])
+      ]),
+      !canAdd? el('div',{class:'muted',style:'margin-top:8px'},['Limite desta versão: 20 times.']) : null
+    ]);
+
+    const grid = el('div',{class:'grid cols-2'},[list,form]);
+    $('#app').appendChild(grid);
+  }
+
+  function renderTeamRow(t,small=false,editable=false){
+    const pill = el('div',{class:'team-pill'},[crest(t), el('div',{},[el('div',{},[el('b',{},[t.name])]), el('div',{class:'muted'},[t.players.length,' jogadores'])])]);
+    const btns = el('div',{},[
+      editable? el('button',{class:'btn ghost sm',onclick:()=>editTeam(t.id)},['Editar']) : null,
+    ]);
+    const row = el('div',{class:'row'},[pill, btns]);
+    return row;
+  }
+
+  function editTeam(id){
+    const t = teamById(id); if(!t) return;
+    $('#app').innerHTML='';
+    const back = el('button',{class:'btn ghost sm',onclick:mount},['← Voltar']);
+
+    const playersBox = el('div',{class:'card'},[
+      el('h2',{},['Jogadores (',t.players.length,'/21)']),
+      el('div',{class:'list',id:'plist'}, t.players.map(p=>renderPlayerEdit(t,p))),
+      el('div',{},[
+        el('button',{class:'btn',disabled:t.players.length>=21,onclick:()=>{
+          const p={id:uid(),number:String(t.players.length+1),name:'Jogador '+(t.players.length+1),position:'--'}; t.players.push(p); sync(); editTeam(id);
+        }},['+ Adicionar jogador'])
+      ])
+    ]);
+
+    const infoBox = el('div',{class:'card'},[
+      el('h2',{},['Informações do time']),
+      field('Nome', t.name, v=>{t.name=v; sync();}),
+      field('Escudo (URL)', t.crest||'', v=>{t.crest=v; sync();}),
+      field('Cor principal', t.color||'#d1d5db', v=>{t.color=v; sync();}),
+      el('div',{},[
+        el('button',{class:'btn bad',onclick:()=>{if(confirm('Excluir time?')){ state.teams = state.teams.filter(x=>x.id!==id); sync(); mount(); }}},['Excluir time'])
+      ])
+    ]);
+
+    $('#app').appendChild(back);
+    $('#app').appendChild(el('div',{class:'grid cols-2'},[playersBox,infoBox]));
+  }
+
+  function renderPlayerEdit(t,p){
+    const row = el('div',{class:'row'},[
+      el('div',{class:'team-pill'},[
+        el('div',{class:'num'},[p.number||'-']),
+        el('div',{},[el('b',{},[p.name||'Sem nome']), el('div',{class:'muted'},[p.position||'--'])])
+      ]),
+      el('div',{style:'display:flex;gap:8px'},[
+        miniInput(p,'number','Nº',60),
+        miniInput(p,'name','Nome',200),
+        miniInput(p,'position','Posição',160),
+        el('button',{class:'btn bad sm',onclick:()=>{ t.players=t.players.filter(x=>x.id!==p.id); sync(); editTeam(t.id); }},['Remover'])
+      ])
+    ]);
+    return row;
+  }
+
+  /*******************
+   * Tela da Partida
+   *******************/
+  function defaultGameState(){
+    return {
+      minute: 0,   // em segundos
+      running: false,
+      half: 1,     // 1 ou 2
+      addedLabel: '', // "+3"
+      showAdded: false,
+      score: {home:0,away:0},
+      lineups: { home:{starters:[],bench:[]}, away:{starters:[],bench:[]} },
+      players: { }, // por teamId -> mapa playerId -> stats
+      events: [],
+      overlays: { score:true, notify:true, lineup:true },
+      lastEvent: ''
+    }
+  }
+
+  let timerInterval = null;
+
+  function GameView(q){
+    const g = gameById(q.id); if(!g){ $('#app').appendChild(el('div',{class:'card'},['Partida não encontrada.'])); return; }
+    const ht = teamById(g.homeId), at = teamById(g.awayId);
+    const S = g.state;
+
+    // header placar + controles
+    const header = el('div',{class:'card'},[
+      el('div',{class:'scorebar'},[
+        teamTag(ht),
+        el('div',{class:'score',id:'scoreTxt'},[S.score.home+' - '+S.score.away]),
+        teamTag(at)
+      ]),
+      el('div',{style:'display:flex;align-items:center;gap:12px;justify-content:center;margin-top:8px'},[
+        el('span',{class:'tag'},[S.half===1?'1º TEMPO':'2º TEMPO']),
+        el('span',{class:'tag clock',id:'clock'},[formatClock(S.minute)]),
+        el('span',{class:'tag',id:'added'},[S.showAdded && S.addedLabel? ('+'+S.addedLabel):' ']),
+        el('button',{class:'btn secondary sm',onclick:()=>{S.running=!S.running; if(S.running) startTimer(g.id); else stopTimer(); sync(); updateClock();}},[S.running?'Pausar':'Iniciar']),
+        el('button',{class:'btn ghost sm',onclick:()=>{ if(S.half===1){ S.half=2; S.minute=0; } else { S.half=1; S.minute=0;} sync(); updateClock(); }},['Novo Tempo']),
+        el('div',{class:'chip'},[el('input',{id:'inpAdded',placeholder:'Acréscimos ex: 6',style:'width:120px'}),' ',el('button',{class:'btn sm warn',onclick:()=>{const v=$('#inpAdded').value.trim(); S.addedLabel=v; S.showAdded=!!v; sync(); updateClock();}},['Mostrar']), el('button',{class:'btn sm ghost',onclick:()=>{S.addedLabel=''; S.showAdded=false; sync(); updateClock();}},['Ocultar'])])
+      ])
+    ]);
+
+    // squads
+    const colLeft = SquadColumn(g,'home',ht);
+    const colRight = SquadColumn(g,'away',at);
+
+    // lateral direita: eventos + overlays
+    const side = el('div',{class:'card'},[
+      el('h2',{},['Histórico de Eventos']),
+      el('div',{class:'list',id:'evts'}, S.events.slice().reverse().map(renderEvt)),
+      el('div',{class:'card',style:'margin-top:12px'},[
+        el('h2',{},['Overlays OBS']),
+        overlayRow(g,'Placar','score','#/overlay/score'),
+        overlayRow(g,'Notificações','notify','#/overlay/notify'),
+        overlayRow(g,'Escalação','lineup','#/overlay/lineup')
+      ])
+    ]);
+
+    $('#app').appendChild(header);
+    const cols = el('div',{class:'columns'},[colLeft,colRight,side]);
+    $('#app').appendChild(cols);
+
+    updateClock();
+  }
+
+  function SquadColumn(g,side,team){
+    const S=g.state;
+
+    // estado inicial da escalação (se vazio, preenche titulares com 11 primeiros)
+    if(!S.lineups[side].starters.length && team.players.length){
+      const first11 = team.players.slice(0, Math.min(11, team.players.length)).map(p=>p.id);
+      S.lineups[side].starters = first11;
+      S.lineups[side].bench = team.players.slice(first11.length).map(p=>p.id);
+      // cria stats
+      if(!S.players[team.id]) S.players[team.id] = {};
+      team.players.forEach(p=>{ if(!S.players[team.id][p.id]) S.players[team.id][p.id]={goals:0,yellows:0,red:false,active:true}; });
+      sync();
+    }
+
+    const title = el('div',{class:'title'},[
+      el('h2',{},[team.name,' – Titulares']),
+      el('span',{class:'muted'},['Arraste para Reservas e vice-versa'])
+    ]);
+
+    const startersBox = el('div',{class:'kanban',id:`${team.id}-${side}-starters`,"data-zone":"starters"});
+    S.lineups[side].starters.forEach(pid=> startersBox.appendChild(playerRow(g,team, pid)) );
+
+    const benchTitle = el('div',{class:'title',style:'margin-top:6px'},[ el('h2',{},['Reservas']) ]);
+    const benchBox = el('div',{class:'kanban',id:`${team.id}-${side}-bench`,"data-zone":"bench"});
+    S.lineups[side].bench.forEach(pid=> benchBox.appendChild(playerRow(g,team, pid)) );
+
+    // drag and drop
+    ;[startersBox,benchBox].forEach(box=>{
+      box.addEventListener('dragover',e=>e.preventDefault());
+      box.addEventListener('drop',e=>{
+        e.preventDefault();
+        const pid = e.dataTransfer.getData('text/plain');
+        const from = e.dataTransfer.getData('from');
+        if(from===box.id) return; // nada a fazer
+        // remove de onde estava
+        ['starters','bench'].forEach(z=>{
+          S.lineups[side][z] = S.lineups[side][z].filter(x=>x!==pid);
+        });
+        // adiciona aqui
+        S.lineups[side][box.dataset.zone].push(pid);
+        sync(); mount();
+      });
+    });
+
+    const card = el('div',{class:'card squad'},[title,startersBox,benchTitle,benchBox]);
+    return card;
+  }
+
+  function playerRow(g,team,pid){
+    const S=g.state; const p = team.players.find(x=>x.id===pid); const st = S.players[team.id][pid] || {goals:0,yellows:0,red:false,active:true};
+    const row = el('div',{class:'player'+(!st.active?' inactive':'') ,draggable:true, ondragstart:(e)=>{ e.dataTransfer.setData('text/plain',pid); e.dataTransfer.setData('from', e.currentTarget.parentElement.id ); }},[
+      el('div',{class:'num'},[p.number||'-']),
+      el('div',{},[ el('div',{},[el('b',{},[p.name])]), el('div',{class:'muted'},[p.position||'']) ]),
+      el('div',{class:'badges'},[
+        el('span',{class:'pill'},['⚽ ', st.goals]),
+        el('span',{class:'pill'},['🟨 ', st.yellows]),
+        st.red? el('span',{class:'pill'},['🟥']) : null,
+        el('button',{class:'btn sm good',title:'Gol',onclick:()=>{ st.goals++; pushEvt(g,`Gol - ${team.name} - ${p.name}`); SUpdate(); }},['Gol +']),
+        el('button',{class:'btn sm warn',title:'Amarelo',onclick:()=>{
+          if(st.red) return; st.yellows++; pushEvt(g,`Cartão Amarelo - ${team.name} - ${p.name}`); if(st.yellows>=2){ st.red=true; st.active=false; pushEvt(g,`Vermelho (2º amarelo) - ${team.name} - ${p.name}`);} SUpdate();
+        }},['Amarelo']),
+        el('button',{class:'btn sm bad',title:'Vermelho',onclick:()=>{ if(!st.red){ st.red=true; st.active=false; pushEvt(g,`Cartão Vermelho - ${team.name} - ${p.name}`); SUpdate(); } }},['Vermelho']),
+        el('button',{class:'btn sm ghost',title:'Substituir (alternar ativo)',onclick:()=>{ st.active=!st.active; pushEvt(g,`${st.active?'Entrou':'Saiu'} - ${team.name} - ${p.name}`); SUpdate(); }},[st.active?'Saiu':'Entrou'])
+      ])
+    ]);
+
+    function SUpdate(){ g.state.players[team.id][pid]=st; sync(); mount(); }
+    return row;
+  }
+
+  function pushEvt(g,txt){ g.state.lastEvent = `(${g.state.half===1?'1T':'2T'} ${formatClock(g.state.minute)}) ${txt}`; g.state.events.push(g.state.lastEvent); }
+
+  function renderEvt(t){ return el('div',{class:'evt'},[t]); }
+
+  function overlayRow(g,label,key,route){
+    const url = location.origin + location.pathname + `${route}?id=${g.id}`;
+    const inputEl = el('input',{value:url,readonly:true,onclick:(e)=>e.target.select()});
+    return el('div',{class:'row'},[
+      el('div',{},[el('b',{},[label]), el('div',{class:'muted'},['Link com fundo verde para chroma key'])]),
+      el('div',{class:'linkbox'},[ inputEl, el('button',{class:'btn sm ghost',onclick:()=>{ navigator.clipboard?.writeText(url); inputEl.select(); }},['Copiar']), toggleBtn(g,key) ])
+    ]);
+  }
+  function toggleBtn(g,key){ return el('button',{class:'btn sm '+(g.state.overlays[key]?'secondary':'ghost'),onclick:()=>{ g.state.overlays[key]=!g.state.overlays[key]; sync(); mount(); }},[g.state.overlays[key]?'Visível':'Oculto']); }
+
+  function teamTag(t){ return el('div',{class:'team-pill'},[ crest(t), el('div',{},[ el('div',{},[el('b',{},[t.name])]), el('div',{class:'muted'},[' ']) ]) ]); }
+  function crest(t){ return el('div',{class:'crest',style:`border-color:${t?.color||'#333'}`}, [ t?.crest? el('img',{src:t.crest,alt:''}) : el('div',{style:'width:70%;height:70%;background:#111;border-radius:6px'}) ]); }
+
+  function startTimer(gid){ stopTimer(); timerInterval = setInterval(()=>{ const g=gameById(gid); if(!g) return; g.state.minute++; sync(); updateClock(); },1000); }
+  function stopTimer(){ if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
+  function updateClock(){ const g = state.games.find(x=>x.status==='live'); if(!g) return; $('#clock') && ($('#clock').textContent = formatClock(g.state.minute)); $('#scoreTxt') && ($('#scoreTxt').textContent = `${g.state.score.home} - ${g.state.score.away}`); $('#added') && ($('#added').textContent = g.state.showAdded && g.state.addedLabel ? ('+'+g.state.addedLabel) : ''); $('#evts') && ($('#evts').innerHTML = g.state.events.slice().reverse().map(e=>`<div class="evt">${e}</div>`).join('')); }
+  function formatClock(sec){ const m=Math.floor(sec/60), s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}`; }
+
+  /****************
+   * Overlays
+   ****************/
+  function OverlayFrame(inner){ document.body.innerHTML=''; document.body.appendChild(el('div',{class:'overlay-root'},[ el('div',{class:'overlay-card',id:'ov-root'},[ inner ]) ])); }
+
+  function OverlayScore(q){ const g = gameById(q.id); if(!g) return OverlayFrame(el('div',{},['Partida não encontrada']));
+    const ht=teamById(g.homeId), at=teamById(g.awayId);
+    const node = el('div',{class:'overlay-line'},[
+      el('div',{class:'overlay-team'},[ crest(ht), el('div',{},[ht.name]) ]),
+      el('div',{class:'overlay-score',id:'ov-score'},[`${g.state.score.home} - ${g.state.score.away}`]),
+      el('div',{class:'overlay-team'},[ el('div',{},[at.name]), crest(at) ])
+    ]);
+    const under = el('div',{class:'overlay-line',style:'margin-top:6px;justify-content:center;gap:16px'},[
+      el('div',{class:'overlay-clock',id:'ov-clock'},[formatClock(g.state.minute)]),
+      el('div',{class:'tag',id:'ov-half'},[g.state.half===1?'1T':'2T']),
+      el('div',{class:'tag',id:'ov-added'},[g.state.showAdded&&g.state.addedLabel?('+'+g.state.addedLabel):''])
+    ]);
+    OverlayFrame([node,under]);
+    // auto refresh
+    setInterval(()=>{
+      const gg = gameById(q.id); if(!gg) return;
+      if(!gg.state.overlays.score){ $('#ov-root').style.display='none'; } else { $('#ov-root').style.display='block'; }
+      $('#ov-score').textContent = `${gg.state.score.home} - ${gg.state.score.away}`;
+      $('#ov-clock').textContent = formatClock(gg.state.minute);
+      $('#ov-half').textContent = gg.state.half===1?'1T':'2T';
+      $('#ov-added').textContent = gg.state.showAdded&&gg.state.addedLabel? ('+'+gg.state.addedLabel) : '';
+    },500);
+  }
+
+  function OverlayNotify(q){ const g=gameById(q.id); if(!g) return OverlayFrame(el('div',{},['Partida não encontrada']));
+    const node = el('div',{style:'display:flex;justify-content:center'},[
+      el('div',{id:'ov-note',class:'overlay-clock'},[g.state.lastEvent||''])
+    ]);
+    OverlayFrame(node);
+    setInterval(()=>{ const gg=gameById(q.id); if(!gg) return; $('#ov-note').textContent = gg.state.overlays.notify ? (gg.state.lastEvent||'') : ''; },500);
+  }
+
+  function OverlayLineup(q){ const g=gameById(q.id); if(!g) return OverlayFrame(el('div',{},['Partida não encontrada']));
+    const ht=teamById(g.homeId), at=teamById(g.awayId);
+    function lineupBlock(team,side){
+      const ids = g.state.lineups[side].starters; const list = ids.map(pid=>{ const p=team.players.find(x=>x.id===pid); const st=g.state.players[team.id][pid]; return `${p.number} - ${p.name}${st.red?' (Expulso)':''}`; });
+      return el('div',{},[
+        el('div',{class:'overlay-team',style:'margin-top:6px'},[ crest(team), team.name ]),
+        el('div',{class:'muted',style:'margin-top:4px'},[ list.join(' | ') || 'Sem escalação' ])
+      ])
+    }
+    const node = el('div',{},[ lineupBlock(ht,'home'), el('div',{style:'height:8px'}), lineupBlock(at,'away') ]);
+    OverlayFrame(node);
+    setInterval(()=>{ const gg=gameById(q.id); if(!gg) return; const root=$('#ov-root'); root.style.display = gg.state.overlays.lineup? 'block':'none'; root.innerHTML=''; root.appendChild(el('div',{},[ lineupBlock(teamById(gg.homeId),'home'), el('div',{style:'height:8px'}), lineupBlock(teamById(gg.awayId),'away') ])); },1000);
+  }
+
+  /****************
+   * Helpers de UI
+   ****************/
+  function input(label,id,type='text',value=''){
+    return el('div',{},[ el('div',{class:'muted'},[label]), el('input',{id, type, value}) ]);
+  }
+  function selectTeam(label,id){
+    const sel = el('select',{id}, state.teams.map(t=> el('option',{value:t.id},[t.name]) ));
+    return el('div',{},[ el('div',{class:'muted'},[label]), sel ]);
+  }
+  function field(label,val,onchange){
+    const i = el('input',{value:val,oninput:(e)=>onchange(e.target.value)});
+    return el('div',{},[ el('div',{class:'muted'},[label]), i ]);
+  }
+  function miniInput(obj,key,ph,w){
+    const i = el('input',{value:obj[key]||'',placeholder:ph,style:`width:${w}px`,oninput:(e)=>{obj[key]=e.target.value; sync();}}); return i;
+  }
+
+  // Inicialização
+  mount();
+  </script>
 </body>
 </html>
