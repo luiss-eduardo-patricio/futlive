@@ -1,127 +1,166 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>FutLive Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-    header { background: #222; color: #fff; padding: 10px; text-align: center; }
-    .container { display: flex; gap: 10px; padding: 10px; }
-    .team { flex: 1; background: #fff; border-radius: 8px; padding: 10px; }
-    .team h2 { text-align: center; }
-    .player-list { min-height: 300px; border: 2px dashed #ccc; border-radius: 6px; padding: 5px; }
-    .player { background: #eee; margin: 4px 0; padding: 6px; border-radius: 4px; cursor: grab; }
-    .substitution { display: flex; justify-content: space-between; margin-top: 10px; }
-    #field { position: relative; width: 100%; height: 400px; background: green; border-radius: 8px; margin-top: 20px; }
-    .field-player { position: absolute; width: 50px; height: 50px; border-radius: 50%; background: yellow; text-align: center; line-height: 50px; cursor: grab; }
-    .events, .overlays { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; }
-    iframe { width: 100%; height: 150px; border: none; }
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+    header { background:#222; color:#fff; padding:10px; text-align:center; }
+    .container { display:flex; flex-wrap:wrap; gap:10px; padding:10px; }
+    .box { background:#fff; padding:10px; border-radius:8px; flex:1 1 300px; }
+    h2,h3 { margin:5px 0; }
+    input,select,button { margin:3px 0; padding:5px; }
+    .team-list, .game-list { max-height:200px; overflow:auto; }
+    .event-log { max-height:200px; overflow:auto; border:1px solid #ccc; padding:5px; }
+    .overlay { text-align:center; font-size:2em; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>FutLive Pro</h1>
-    <div id="scoreboard">FLA 2 - 1 VAS | 2T 45:00</div>
-  </header>
+<header>
+  <h1>FutLive Pro</h1>
+  <nav>
+    <a href="?">Gerenciar</a> | 
+    <a href="?overlay=placar" target="_blank">Overlay Placar</a> | 
+    <a href="?overlay=notificacoes" target="_blank">Overlay Notificações</a> | 
+    <a href="?overlay=escalacao" target="_blank">Overlay Escalação</a>
+  </nav>
+</header>
 
-  <div class="container">
-    <div class="team">
-      <h2>Flamengo</h2>
-      <h3>Titulares</h3>
-      <div id="fla-starters" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      <h3>Reservas</h3>
-      <div id="fla-reserves" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<div id="app"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const overlay = params.get("overlay");
+
+// --------- DADOS ---------
+let data = JSON.parse(localStorage.getItem("futlive-data")) || {
+  teams: [], games: [], events:[]
+};
+
+function saveData(){ localStorage.setItem("futlive-data", JSON.stringify(data)); }
+
+// --------- VIEWS ---------
+function renderManager(){
+  document.getElementById("app").innerHTML = `
+    <div class="container">
+      <div class="box">
+        <h2>Times</h2>
+        <input id="teamName" placeholder="Nome do time">
+        <button onclick="addTeam()">Adicionar</button>
+        <div class="team-list">${data.teams.map((t,i)=>`<div>${i+1}. ${t.name} (${t.players.length}/21)</div>`).join("")}</div>
+      </div>
+      <div class="box">
+        <h2>Jogos</h2>
+        <select id="home">${optionsTeams()}</select> vs 
+        <select id="away">${optionsTeams()}</select><br>
+        <input id="date" type="date"> <input id="time" type="time"><br>
+        <button onclick="addGame()">Agendar</button>
+        <div class="game-list">${data.games.map((g,i)=>`<div>${i+1}. ${g.home} x ${g.away} (${g.date} ${g.time})</div>`).join("")}</div>
+      </div>
+      <div class="box">
+        <h2>Partida em Tempo Real</h2>
+        <button onclick="startMatch()">Iniciar</button>
+        <div id="match"></div>
+      </div>
+      <div class="box">
+        <h2>Eventos</h2>
+        <div class="event-log">${data.events.map(e=>`<div>${e}</div>`).join("")}</div>
+      </div>
     </div>
+  `;
+}
 
-    <div class="team">
-      <h2>Vasco</h2>
-      <h3>Titulares</h3>
-      <div id="vas-starters" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      <h3>Reservas</h3>
-      <div id="vas-reserves" class="player-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+function renderOverlayPlacar(){
+  document.getElementById("app").innerHTML = `
+    <div class="overlay">
+      <div>${currentGame?.home || "Time A"} ${score.home} - ${score.away} ${currentGame?.away || "Time B"}</div>
+      <div>${timerText()}</div>
     </div>
-
-    <div class="events">
-      <h3>Histórico de Eventos</h3>
-      <div id="event-log"></div>
+  `;
+}
+function renderOverlayNotificacoes(){
+  document.getElementById("app").innerHTML = `
+    <div class="overlay">
+      ${lastEvent ? lastEvent : "Sem eventos"}
     </div>
-  </div>
+  `;
+}
+function renderOverlayEscalacao(){
+  document.getElementById("app").innerHTML = `
+    <div class="overlay">
+      <h2>${currentGame?.home || "Time A"}</h2>
+      <div>${listPlayers(currentGame?.home)}</div>
+      <h2>${currentGame?.away || "Time B"}</h2>
+      <div>${listPlayers(currentGame?.away)}</div>
+    </div>
+  `;
+}
 
-  <div id="field"></div>
+// --------- FUNÇÕES ---------
+function optionsTeams(){
+  return data.teams.map(t=>`<option>${t.name}</option>`).join("");
+}
+function addTeam(){
+  const name=document.getElementById("teamName").value.trim();
+  if(!name) return;
+  if(data.teams.length>=20){alert("Limite de 20 times.");return;}
+  data.teams.push({name, players:[]});
+  saveData(); renderManager();
+}
+function addGame(){
+  if(data.games.length>=2){alert("Limite de 2 jogos agendados.");return;}
+  const home=document.getElementById("home").value;
+  const away=document.getElementById("away").value;
+  const date=document.getElementById("date").value;
+  const time=document.getElementById("time").value;
+  data.games.push({home,away,date,time});
+  saveData(); renderManager();
+}
 
-  <div class="overlays">
-    <h3>Overlays OBS</h3>
-    <p><a href="overlay_placar.html" target="_blank">Placar</a></p>
-    <p><a href="overlay_notificacoes.html" target="_blank">Notificações</a></p>
-    <p><a href="overlay_escalacao.html" target="_blank">Escalação</a></p>
-  </div>
+// ---- Partida ----
+let currentGame=null, score={home:0,away:0}, timer=0, interval=null, lastEvent=null;
 
-  <script>
-    let playerId = 0;
+function startMatch(){
+  if(!data.games.length){alert("Agende um jogo.");return;}
+  currentGame=data.games[0]; // pega o primeiro jogo agendado
+  score={home:0,away:0}; timer=0; data.events=[]; saveData();
+  document.getElementById("match").innerHTML=`
+    <div><b>${currentGame.home}</b> ${score.home} - ${score.away} <b>${currentGame.away}</b></div>
+    <div id="timer">${timerText()}</div>
+    <button onclick="goal('home')">Gol ${currentGame.home}</button>
+    <button onclick="goal('away')">Gol ${currentGame.away}</button>
+    <button onclick="addCard('Amarelo')">Cartão Amarelo</button>
+    <button onclick="addCard('Vermelho')">Cartão Vermelho</button>
+    <button onclick="toggleTimer()">Play/Pause</button>
+  `;
+}
 
-    function createPlayer(name) {
-      const div = document.createElement("div");
-      div.className = "player";
-      div.draggable = true;
-      div.id = "player-" + (++playerId);
-      div.ondragstart = drag;
-      div.innerText = name;
-      return div;
-    }
+function timerText(){ let m=Math.floor(timer/60),s=timer%60; return `${m}:${s.toString().padStart(2,"0")}`; }
+function toggleTimer(){
+  if(interval){ clearInterval(interval); interval=null; }
+  else{ interval=setInterval(()=>{timer++; document.getElementById("timer").innerText=timerText();},1000); }
+}
+function goal(team){
+  score[team]++; lastEvent=`Gol do ${team==="home"?currentGame.home:currentGame.away}`;
+  data.events.push(lastEvent); saveData(); renderManager();
+}
+function addCard(tipo){
+  lastEvent=`${tipo} em campo`;
+  data.events.push(lastEvent); saveData(); renderManager();
+}
+function listPlayers(teamName){
+  const t=data.teams.find(t=>t.name===teamName);
+  if(!t) return "(sem jogadores)";
+  return t.players.map(p=>p.name).join(", ");
+}
 
-    function allowDrop(ev) {
-      ev.preventDefault();
-    }
-
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function drop(ev) {
-      ev.preventDefault();
-      const data = ev.dataTransfer.getData("text");
-      ev.target.appendChild(document.getElementById(data));
-    }
-
-    // Demo players
-    ["Gabigol","Arrascaeta","Pedro","Everton"]
-      .forEach(p => document.getElementById("fla-reserves").appendChild(createPlayer(p)));
-    ["Payet","Rossi","Coutinho","Vegetais"]
-      .forEach(p => document.getElementById("vas-reserves").appendChild(createPlayer(p)));
-
-    // Campo com jogadores arrastáveis
-    ["1","2","3","4","5","6","7","8","9","10","11"].forEach((n, i) => {
-      const div = document.createElement("div");
-      div.className = "field-player";
-      div.style.left = (50 + (i%4)*100) + "px";
-      div.style.top = (50 + Math.floor(i/4)*100) + "px";
-      div.innerText = n;
-      div.draggable = true;
-      div.id = "fp-"+n;
-      div.ondragstart = drag;
-      document.getElementById("field").appendChild(div);
-    });
-  </script>
+// --------- RENDER ---------
+if(overlay==="placar") renderOverlayPlacar();
+else if(overlay==="notificacoes") renderOverlayNotificacoes();
+else if(overlay==="escalacao") renderOverlayEscalacao();
+else renderManager();
+</script>
 </body>
 </html>
-
-<!-- overlay_placar.html -->
-<!DOCTYPE html>
-<html><body style="background:black;color:white;font-size:30px;text-align:center;">FLA 2 - 1 VAS | 2T 45:00</body></html>
-
-<!-- overlay_notificacoes.html -->
-<!DOCTYPE html>
-<html><body style="background:transparent;color:yellow;font-size:24px;">Gol - Gabigol</body></html>
-
-<!-- overlay_escalacao.html -->
-<!DOCTYPE html>
-<html><body style="background:#111;color:white;font-size:18px;">
-  <h3>Escalação</h3>
-  <ul>
-    <li>1 - Goleiro</li>
-    <li>2 - Lateral</li>
-    <li>3 - Zagueiro</li>
-    <!-- ... -->
-  </ul>
-</body></html>
