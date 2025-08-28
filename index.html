@@ -1,223 +1,408 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FutLive.com</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FutLive</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
   body{background:#f7f7f7;color:#333}
-  header{position:fixed;top:0;left:0;width:100%;background:#fff;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;padding:.8rem 2rem;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-  header .logo img{height:50px}
-  nav a{margin-left:1.5rem;text-decoration:none;color:#333;font-weight:500;transition:color .3s}
+  header{position:fixed;top:0;left:0;width:100%;background:#fff;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;padding:.8rem 1.2rem;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+  .logo img{height:48px;display:block}
+  nav a{margin-left:1rem;text-decoration:none;color:#333;font-weight:500;cursor:pointer}
   nav a:hover{color:#ff4d4f}
-  main{padding-top:100px}
-  section{display:none;padding:2rem;min-height:calc(100vh - 100px)}
+  main{padding-top:96px}
+  section{display:none;padding:1.6rem;min-height:calc(100vh - 96px)}
   section.active{display:block}
-  h1{margin-bottom:1rem;color:#000}
+  h1{margin-bottom:1rem}
   .cards{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
-  .card{background:#fff;border-radius:12px;padding:1.2rem;width:240px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .3s,box-shadow .3s}
-  .card:hover{transform:translateY(-5px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
-  .card button{margin-top:.5rem;padding:.5rem 1rem;border:none;border-radius:8px;background:#ff4d4f;color:#fff;cursor:pointer;transition:background .3s}
-  .card button:hover{background:#e04345}
-  form{display:flex;flex-direction:column;gap:.8rem;max-width:300px;margin:1rem auto}
+  .card{background:#fff;border-radius:12px;padding:1rem;width:240px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .2s}
+  .card:hover{transform:translateY(-6px)}
+  .card img.logo-time{width:72px;height:72px;object-fit:contain;border-radius:8px;background:#fff;padding:6px;margin-bottom:.6rem}
+  button{padding:.45rem .8rem;border-radius:8px;border:none;background:#ff4d4f;color:#fff;cursor:pointer}
   input,select{padding:.5rem;border-radius:8px;border:1px solid #ccc;width:100%}
-  form button{background:#ff4d4f;color:#fff;border:none;padding:.5rem;border-radius:8px;cursor:pointer}
-  form button:hover{background:#e04345}
-  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:2000}
-  .modal-content{background:#fff;padding:2rem;border-radius:12px;max-width:520px;width:95%}
-  .partida-card{background:linear-gradient(180deg,#ffffff 0%,#fffaf9 100%);border-radius:16px;padding:1.2rem;width:320px;box-shadow:0 8px 28px rgba(0,0,0,.12);text-align:center;transition:transform .35s,box-shadow .35s;border:1px solid rgba(0,0,0,.04)}
-  .partida-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(0,0,0,.16)}
-  .partida-times{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.8rem}
-  .partida-times span{font-size:1.4rem;font-weight:800;color:#ff4d4f}
-  .home-header{display:flex;align-items:center;gap:1rem;justify-content:center;margin-bottom:2rem;flex-wrap:wrap}
-  .home-header img{height:160px}
-  @media (max-width:720px){.partida-card{width:95%}.card{width:45%}.home-header{flex-direction:column}}
+  form{display:flex;flex-direction:column;gap:.6rem;max-width:340px;margin:0 auto 1rem}
+  .partida-card{background:linear-gradient(180deg,#ffffff 0%,#fffaf9 100%);border-radius:12px;padding:1rem;width:320px;box-shadow:0 8px 28px rgba(0,0,0,.12);text-align:center}
+  .partida-times{display:flex;align-items:center;justify-content:center;gap:0.8rem;margin-bottom:.6rem}
+  .escudo-placeholder{width:72px;height:72px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.4rem}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:2000}
+  .modal .modal-content{background:#fff;padding:1rem;border-radius:10px;max-width:520px;width:95%}
+  @media (max-width:720px){.card{width:46%}.partida-card{width:95%}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><img id="logoTop" src="110003af-2940-42c0-ac1c-6cf9c6ad0916.png" alt="FutLive Logo"></div>
+  <div class="logo"><img id="logoTop" alt="FutLive Logo"></div>
   <nav>
-    <a href="#home" data-section="home">Início</a>
-    <a href="#jogadores" data-section="jogadores">Gerenciar Jogadores</a>
-    <a href="#times" data-section="times">Gerenciar Times</a>
-    <a href="#partidas" data-section="partidas">Agendar Partidas</a>
+    <a data-section="home">Início</a>
+    <a data-section="jogadores">Jogadores</a>
+    <a data-section="times">Times</a>
+    <a data-section="partidas">Partidas</a>
   </nav>
 </header>
 
 <main>
   <section id="home" class="active">
-    <div class="home-header">
-      <img id="logoHome" src="110003af-2940-42c0-ac1c-6cf9c6ad0916.png" alt="FutLive Logo">
-      <h1>Bem-vindo ao FutLive!</h1>
+    <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:12px">
+      <img id="logoHome" alt="FutLive Logo" style="height:120px">
+      <div><h1>Bem-vindo ao FutLive</h1></div>
     </div>
-    <div class="cards" id="cardsPartidasHome"><p>Nenhuma partida agendada ainda.</p></div>
+    <div id="cardsPartidasHome" class="cards"><p>Nenhuma partida agendada ainda.</p></div>
+  </section>
+
+  <section id="jogadores">
+    <h1>Gerenciar Jogadores</h1>
+    <form id="formJogador">
+      <input id="nomeJogador" placeholder="Nome completo" required>
+      <input id="funcaoJogador" placeholder="Função (ex: Goleiro)" required>
+      <button type="submit">Adicionar Jogador</button>
+    </form>
+    <div id="listaJogadores" class="cards"></div>
   </section>
 
   <section id="times">
     <h1>Gerenciar Times</h1>
     <form id="formTime">
-      <input type="text" id="nomeTime" placeholder="Nome do Time" required>
-      <input type="color" id="corTime" required>
+      <input id="nomeTime" placeholder="Nome do time" required>
+      <input type="color" id="corTime" value="#1f8bff" required>
       <input type="file" id="escudoTime" accept="image/*">
       <button type="submit">Adicionar Time</button>
     </form>
-    <div class="cards" id="listaTimes"></div>
+    <div id="listaTimes" class="cards"></div>
   </section>
 
   <section id="partidas">
-    <h1>Agendar Partidas</h1>
+    <h1>Agendar Partida</h1>
     <form id="formPartida">
       <select id="time1"></select>
       <select id="time2"></select>
       <input type="date" id="dataPartida" required>
       <input type="time" id="horaPartida" required>
-      <input type="text" id="localPartida" placeholder="Local da Partida" required>
-      <button type="submit">Agendar Partida</button>
+      <input id="localPartida" placeholder="Local" required>
+      <button type="submit">Agendar</button>
     </form>
-    <div class="cards" id="listaPartidas"></div>
+    <div id="listaPartidas" class="cards"></div>
   </section>
 </main>
 
 <!-- Modal Editar Time -->
-<div class="modal" id="modalEditarTime">
-  <div class="modal-content">
-    <h2>Editar Time</h2>
-    <form id="formEditarTime">
-      <input type="text" id="editarNomeTime" required>
-      <input type="color" id="editarCorTime" required>
-      <input type="file" id="editarEscudoTime" accept="image/*">
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModalEditarTime()">Cancelar</button>
-      </div>
-    </form>
-  </div>
-</div>
+<div id="modalEditarTime" class="modal"><div class="modal-content">
+  <h3>Editar Time</h3>
+  <form id="formEditarTime">
+    <input id="editarNomeTime" required>
+    <input type="color" id="editarCorTime" required>
+    <input type="file" id="editarEscudoTime" accept="image/*">
+    <div style="display:flex;gap:.6rem;margin-top:.6rem;justify-content:flex-end">
+      <button type="submit">Salvar</button>
+      <button type="button" id="btnCancelarEditarTime">Cancelar</button>
+    </div>
+  </form>
+</div></div>
 
 <!-- Modal Editar Partida -->
-<div class="modal" id="modalEditarPartida">
-  <div class="modal-content">
-    <h2>Editar Partida</h2>
-    <form id="formEditarPartida">
-      <select id="editarTime1"></select>
-      <select id="editarTime2"></select>
-      <input type="date" id="editarDataPartida" required>
-      <input type="time" id="editarHoraPartida" required>
-      <input type="text" id="editarLocalPartida" required>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModalEditarPartida()">Cancelar</button>
-      </div>
-    </form>
-  </div>
-</div>
+<div id="modalEditarPartida" class="modal"><div class="modal-content">
+  <h3>Editar Partida</h3>
+  <form id="formEditarPartida">
+    <select id="editarTime1"></select>
+    <select id="editarTime2"></select>
+    <input type="date" id="editarDataPartida" required>
+    <input type="time" id="editarHoraPartida" required>
+    <input id="editarLocalPartida" required>
+    <div style="display:flex;gap:.6rem;margin-top:.6rem;justify-content:flex-end">
+      <button type="submit">Salvar</button>
+      <button type="button" id="btnCancelarEditarPartida">Cancelar</button>
+    </div>
+  </form>
+</div></div>
 
 <script>
+/* ===== fallback logo SVG ===== */
+const FALLBACK_LOGO = 'data:image/svg+xml;utf8,' +
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100">
+    <rect width="100%" height="100%" fill="#fff"/>
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Segoe UI" font-size="28" fill="#ff4d4f">FutLive</text>
+  </svg>`);
+
+/* ===== util: tenta várias fontes para logo ===== */
+function trySetImage(imgEl, candidates, fallback){
+  let i = 0;
+  function next(){
+    if(i >= candidates.length){ imgEl.src = fallback; return; }
+    imgEl.onerror = ()=>{ i++; next(); };
+    imgEl.onload = ()=>{ imgEl.onerror = null; };
+    imgEl.src = candidates[i];
+  }
+  next();
+}
+
+/* ===== util: criar elemento de escudo (img com fallback) ===== */
+function createEscudoElement(src, colorFallback, text){
+  if(!src) {
+    const ph = document.createElement('div');
+    ph.className = 'escudo-placeholder';
+    ph.style.background = colorFallback || '#888';
+    ph.textContent = (text||'T').charAt(0).toUpperCase();
+    return ph;
+  }
+  const img = document.createElement('img');
+  img.className = 'logo-time';
+  img.src = src;
+  img.alt = text || 'escudo';
+  img.onerror = function(){
+    const ph = document.createElement('div');
+    ph.className = 'escudo-placeholder';
+    ph.style.background = colorFallback || '#888';
+    ph.textContent = (text||'T').charAt(0).toUpperCase();
+    this.replaceWith(ph);
+  };
+  return img;
+}
+
+/* ===== Estado e persistência ===== */
+let jogadores = JSON.parse(localStorage.getItem('jogadores')||'[]');
 let times = JSON.parse(localStorage.getItem('times')||'[]');
 let partidas = JSON.parse(localStorage.getItem('partidas')||'[]');
-let timeEditando = null;
-let partidaEditando = null;
 
-/* === TIMES === */
-function atualizarTimes(){
-  const lista=document.getElementById('listaTimes');
-  const sel1=document.getElementById('time1'), sel2=document.getElementById('time2');
-  const es1=document.getElementById('editarTime1'), es2=document.getElementById('editarTime2');
-  lista.innerHTML=''; sel1.innerHTML='<option value="">Time 1</option>'; sel2.innerHTML='<option value="">Time 2</option>';
-  es1.innerHTML='<option value="">Time 1</option>'; es2.innerHTML='<option value="">Time 2</option>';
-  times.forEach((t,i)=>{
-    const card=document.createElement('div'); card.className='card';
-    card.style.border=`3px solid ${t.cor}`;
-    card.innerHTML=`<h3>${t.nome}</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <button onclick="abrirEditarTime(${i})">Editar</button>
-        <button onclick="removerTime(${i})">Excluir</button>
-      </div>`;
+function salvarTudo(){
+  localStorage.setItem('jogadores', JSON.stringify(jogadores));
+  localStorage.setItem('times', JSON.stringify(times));
+  localStorage.setItem('partidas', JSON.stringify(partidas));
+  atualizarTudo();
+}
+
+/* ===== Navegação simples e confiável ===== */
+function showSection(id){
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id) || document.getElementById('home');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  history.replaceState(null,'', '#'+id);
+}
+document.querySelectorAll('nav a').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const sec = a.dataset.section;
+    showSection(sec);
+  });
+});
+window.addEventListener('hashchange', ()=>{ showSection(location.hash.replace('#','')||'home'); });
+
+/* ===== LOGO: tenta carregar os arquivos fornecidos, senão fallback ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const logoTop = document.getElementById('logoTop');
+  const logoHome = document.getElementById('logoHome');
+  // coloque aqui os nomes que você usa no servidor; tentamos alguns
+  const candidates = ['110003af-2940-42c0-ac1c-6cf9c6ad0916.png','logo.png','/logo.png'];
+  trySetImage(logoTop, candidates, FALLBACK_LOGO);
+  trySetImage(logoHome, candidates, FALLBACK_LOGO);
+  // inits
+  atualizarTudo();
+  // handle hash inicial
+  showSection((location.hash||'#home').replace('#','') || 'home');
+});
+
+/* ===== JOGADORES ===== */
+function atualizarJogadores(){
+  const lista = document.getElementById('listaJogadores');
+  lista.innerHTML = '';
+  if(!jogadores.length){ lista.innerHTML = '<p>Nenhum jogador cadastrado.</p>'; return; }
+  jogadores.forEach((j, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `<strong>${j.nome}</strong><div style="font-size:.95rem;color:#666">${j.funcao}</div>`;
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px'; actions.style.marginTop='8px';
+    const btnEdit = document.createElement('button'); btnEdit.textContent='Editar';
+    btnEdit.onclick = ()=> abrirEditarJogador(idx);
+    const btnDel = document.createElement('button'); btnDel.textContent='Excluir';
+    btnDel.style.background='#777';
+    btnDel.onclick = ()=>{ jogadores.splice(idx,1); salvarTudo(); };
+    actions.appendChild(btnEdit); actions.appendChild(btnDel);
+    card.appendChild(actions);
     lista.appendChild(card);
-    sel1.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
-    sel2.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
-    es1.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
-    es2.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
   });
 }
-function removerTime(i){times.splice(i,1);salvarTudo();}
-function abrirEditarTime(i){timeEditando=i;
-  document.getElementById('editarNomeTime').value=times[i].nome;
-  document.getElementById('editarCorTime').value=times[i].cor;
-  document.getElementById('modalEditarTime').style.display='flex';}
-function fecharModalEditarTime(){document.getElementById('modalEditarTime').style.display='none';timeEditando=null;}
-document.getElementById('formEditarTime').addEventListener('submit',e=>{
-  e.preventDefault(); if(timeEditando!==null){
-    const nome=document.getElementById('editarNomeTime').value.trim();
-    const cor=document.getElementById('editarCorTime').value;
-    const file=document.getElementById('editarEscudoTime').files[0];
-    const salvar=(esc)=>{times[timeEditando]={...times[timeEditando],nome,cor,escudo:esc||times[timeEditando].escudo};salvarTudo();fecharModalEditarTime();};
-    if(file){const r=new FileReader();r.onload=()=>salvar(r.result);r.readAsDataURL(file);}else salvar(null);
-  }
-});
-
-/* === PARTIDAS === */
-function atualizarPartidas(){
-  const lista=document.getElementById('listaPartidas');
-  const home=document.getElementById('cardsPartidasHome');
-  lista.innerHTML=''; home.innerHTML='';
-  if(!partidas.length){home.innerHTML='<p>Nenhuma partida agendada ainda.</p>';return;}
-  partidas.forEach((p,i)=>{
-    const c1=document.createElement('div'); c1.className='card';
-    c1.innerHTML=`<h3>${p.time1} vs ${p.time2}</h3>
-      <p>${p.data} ${p.hora} - ${p.local}</p>
-      <button onclick="abrirEditarPartida(${i})">Editar</button>
-      <button onclick="removerPartida(${i})">Excluir</button>`;
-    lista.appendChild(c1);
-    const c2=document.createElement('div'); c2.className='partida-card';
-    c2.innerHTML=`<div class="partida-times"><span>${p.time1}</span> X <span>${p.time2}</span></div>
-      <h3>${p.time1} vs ${p.time2}</h3>
-      <p><strong>Data:</strong> ${p.data} - ${p.hora}</p>
-      <p><strong>Local:</strong> ${p.local}</p>`;
-    home.appendChild(c2);
-  });
-}
-function removerPartida(i){partidas.splice(i,1);salvarTudo();}
-function abrirEditarPartida(i){partidaEditando=i;
-  const p=partidas[i];
-  document.getElementById('editarTime1').value=p.time1;
-  document.getElementById('editarTime2').value=p.time2;
-  document.getElementById('editarDataPartida').value=p.data;
-  document.getElementById('editarHoraPartida').value=p.hora;
-  document.getElementById('editarLocalPartida').value=p.local;
-  document.getElementById('modalEditarPartida').style.display='flex';}
-function fecharModalEditarPartida(){document.getElementById('modalEditarPartida').style.display='none';partidaEditando=null;}
-document.getElementById('formEditarPartida').addEventListener('submit',e=>{
-  e.preventDefault(); if(partidaEditando!==null){
-    partidas[partidaEditando]={
-      time1:document.getElementById('editarTime1').value,
-      time2:document.getElementById('editarTime2').value,
-      data:document.getElementById('editarDataPartida').value,
-      hora:document.getElementById('editarHoraPartida').value,
-      local:document.getElementById('editarLocalPartida').value
-    };
-    salvarTudo();fecharModalEditarPartida();
-  }
-});
-
-/* === FORM NOVA PARTIDA === */
-document.getElementById('formPartida').addEventListener('submit',e=>{
+document.getElementById('formJogador').addEventListener('submit', e=>{
   e.preventDefault();
-  const time1=document.getElementById('time1').value, time2=document.getElementById('time2').value;
-  const data=document.getElementById('dataPartida').value, hora=document.getElementById('horaPartida').value;
-  const local=document.getElementById('localPartida').value.trim();
-  if(time1&&time2&&time1!==time2&&data&&hora&&local){
-    partidas.push({time1,time2,data,hora,local});
-    salvarTudo(); e.target.reset();
-  }
+  const nome = document.getElementById('nomeJogador').value.trim();
+  const funcao = document.getElementById('funcaoJogador').value.trim();
+  if(!nome||!funcao) return;
+  jogadores.push({nome,funcao});
+  document.getElementById('formJogador').reset();
+  salvarTudo();
 });
 
-/* === SALVAR === */
-function salvarTudo(){localStorage.setItem('times',JSON.stringify(times));localStorage.setItem('partidas',JSON.stringify(partidas));atualizarTimes();atualizarPartidas();}
-document.addEventListener('DOMContentLoaded',()=>{atualizarTimes();atualizarPartidas();});
+/* edição jogador (simples prompt) */
+function abrirEditarJogador(idx){
+  const j = jogadores[idx];
+  const novoNome = prompt('Nome:', j.nome);
+  if(novoNome===null) return;
+  const novaFunc = prompt('Função:', j.funcao);
+  if(novaFunc===null) return;
+  jogadores[idx] = {nome: novoNome.trim()||j.nome, funcao: novaFunc.trim()||j.funcao};
+  salvarTudo();
+}
+
+/* ===== TIMES ===== */
+function atualizarTimes(){
+  const lista = document.getElementById('listaTimes');
+  const sel1 = document.getElementById('time1');
+  const sel2 = document.getElementById('time2');
+  lista.innerHTML=''; sel1.innerHTML='<option value="">Time 1</option>'; sel2.innerHTML='<option value="">Time 2</option>';
+  times.forEach((t, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    const escEl = createEscudoElement(t.escudo, t.cor, t.nome);
+    card.appendChild(escEl);
+    const h = document.createElement('div'); h.innerHTML = `<strong>${t.nome}</strong>`; card.appendChild(h);
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px'; actions.style.marginTop='8px';
+    const btnEdit = document.createElement('button'); btnEdit.textContent='Editar';
+    btnEdit.onclick = ()=> abrirEditarTime(idx);
+    const btnDel = document.createElement('button'); btnDel.textContent='Excluir'; btnDel.style.background='#777';
+    btnDel.onclick = ()=>{ if(confirm('Excluir time?')){ times.splice(idx,1); salvarTudo(); } };
+    actions.appendChild(btnEdit); actions.appendChild(btnDel); card.appendChild(actions);
+    lista.appendChild(card);
+    sel1.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+    sel2.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+  });
+}
+
+document.getElementById('formTime').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nome = document.getElementById('nomeTime').value.trim();
+  const cor = document.getElementById('corTime').value;
+  const file = document.getElementById('escudoTime').files[0];
+  const push = (esc)=>{ times.push({nome,cor,escudo:esc||null}); salvarTudo(); document.getElementById('formTime').reset(); };
+  if(file){
+    const r=new FileReader();
+    r.onload = ()=> push(r.result);
+    r.readAsDataURL(file);
+  } else push(null);
+});
+
+/* editar time em modal simples (ler/atualizar e propagar nome para partidas) */
+let timeEditIndex = null;
+function abrirEditarTime(idx){
+  timeEditIndex = idx;
+  const t = times[idx];
+  document.getElementById('editarNomeTime').value = t.nome;
+  document.getElementById('editarCorTime').value = t.cor || '#1f8bff';
+  document.getElementById('modalEditarTime').style.display = 'flex';
+}
+document.getElementById('btnCancelarEditarTime').addEventListener('click', ()=>{ document.getElementById('modalEditarTime').style.display='none'; timeEditIndex=null; });
+document.getElementById('formEditarTime').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(timeEditIndex===null) return;
+  const oldName = times[timeEditIndex].nome;
+  const nome = document.getElementById('editarNomeTime').value.trim();
+  const cor = document.getElementById('editarCorTime').value;
+  const file = document.getElementById('editarEscudoTime').files[0];
+  const apply = (esc)=>{
+    times[timeEditIndex] = {...times[timeEditIndex], nome: nome||times[timeEditIndex].nome, cor, escudo: esc!==undefined ? (esc||times[timeEditIndex].escudo) : times[timeEditIndex].escudo};
+    // atualizar partidas que referenciam o nome antigo
+    partidas = partidas.map(p=>{
+      return {...p,
+        time1: p.time1 === oldName ? times[timeEditIndex].nome : p.time1,
+        time2: p.time2 === oldName ? times[timeEditIndex].nome : p.time2
+      };
+    });
+    salvarTudo();
+    document.getElementById('modalEditarTime').style.display='none';
+    timeEditIndex = null;
+  };
+  if(file){
+    const r = new FileReader();
+    r.onload = ()=> apply(r.result);
+    r.readAsDataURL(file);
+  } else apply(undefined);
+});
+
+/* ===== PARTIDAS ===== */
+let partidaEditIndex = null;
+function atualizarPartidas(){
+  const lista = document.getElementById('listaPartidas');
+  const home = document.getElementById('cardsPartidasHome');
+  lista.innerHTML=''; home.innerHTML='';
+  if(!partidas.length){ home.innerHTML = '<p>Nenhuma partida agendada ainda.</p>'; return; }
+  partidas.forEach((p, idx)=>{
+    const adminCard = document.createElement('div'); adminCard.className='card';
+    adminCard.innerHTML = `<div style="font-weight:700">${p.time1} vs ${p.time2}</div><div style="font-size:.95rem;color:#555">${p.data} ${p.hora} - ${p.local}</div>`;
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px'; actions.style.marginTop='8px';
+    const btnEdit = document.createElement('button'); btnEdit.textContent='Editar';
+    btnEdit.onclick = ()=> abrirEditarPartida(idx);
+    const btnDel = document.createElement('button'); btnDel.textContent='Excluir'; btnDel.style.background='#777';
+    btnDel.onclick = ()=> { if(confirm('Excluir partida?')){ partidas.splice(idx,1); salvarTudo(); } };
+    actions.appendChild(btnEdit); actions.appendChild(btnDel); adminCard.appendChild(actions);
+    lista.appendChild(adminCard);
+
+    const homeCard = document.createElement('div'); homeCard.className='partida-card';
+    const t1 = times.find(t=>t.nome===p.time1);
+    const t2 = times.find(t=>t.nome===p.time2);
+    const esc1 = createEscudoElement(t1?.escudo, t1?.cor||'#888', p.time1);
+    const esc2 = createEscudoElement(t2?.escudo, t2?.cor||'#888', p.time2);
+    const timesBox = document.createElement('div'); timesBox.className='partida-times';
+    timesBox.appendChild(esc1); const vs = document.createElement('div'); vs.textContent='X'; vs.style.fontWeight='800'; vs.style.color='#ff4d4f'; timesBox.appendChild(vs); timesBox.appendChild(esc2);
+    homeCard.appendChild(timesBox);
+    homeCard.innerHTML += `<h4 style="margin:.4rem 0">${p.time1} vs ${p.time2}</h4>
+      <div style="font-size:.95rem;color:#444"><strong>Data:</strong> ${p.data} - ${p.hora}</div>
+      <div style="font-size:.95rem;color:#444"><strong>Local:</strong> ${p.local}</div>`;
+    home.appendChild(homeCard);
+  });
+}
+
+document.getElementById('formPartida').addEventListener('submit', e=>{
+  e.preventDefault();
+  const t1 = document.getElementById('time1').value;
+  const t2 = document.getElementById('time2').value;
+  const data = document.getElementById('dataPartida').value;
+  const hora = document.getElementById('horaPartida').value;
+  const local = document.getElementById('localPartida').value.trim();
+  if(!t1||!t2||t1===t2||!data||!hora||!local) return alert('Preencha corretamente (times diferentes).');
+  partidas.push({time1:t1,time2:t2,data,hora,local});
+  document.getElementById('formPartida').reset();
+  salvarTudo();
+});
+
+/* editar partida */
+function abrirEditarPartida(idx){
+  partidaEditIndex = idx;
+  const p = partidas[idx];
+  // preencher selects de editar
+  const et1 = document.getElementById('editarTime1'), et2 = document.getElementById('editarTime2');
+  et1.innerHTML = '<option value="">Time 1</option>'; et2.innerHTML = '<option value="">Time 2</option>';
+  times.forEach(t=>{ et1.innerHTML += `<option value="${t.nome}">${t.nome}</option>`; et2.innerHTML += `<option value="${t.nome}">${t.nome}</option>`; });
+  document.getElementById('editarTime1').value = p.time1;
+  document.getElementById('editarTime2').value = p.time2;
+  document.getElementById('editarDataPartida').value = p.data;
+  document.getElementById('editarHoraPartida').value = p.hora;
+  document.getElementById('editarLocalPartida').value = p.local;
+  document.getElementById('modalEditarPartida').style.display = 'flex';
+}
+document.getElementById('btnCancelarEditarPartida').addEventListener('click', ()=>{ document.getElementById('modalEditarPartida').style.display='none'; partidaEditIndex=null; });
+document.getElementById('formEditarPartida').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(partidaEditIndex===null) return;
+  const t1 = document.getElementById('editarTime1').value;
+  const t2 = document.getElementById('editarTime2').value;
+  const data = document.getElementById('editarDataPartida').value;
+  const hora = document.getElementById('editarHoraPartida').value;
+  const local = document.getElementById('editarLocalPartida').value.trim();
+  if(!t1||!t2||t1===t2||!data||!hora||!local) return alert('Preencha corretamente (times diferentes).');
+  partidas[partidaEditIndex] = {time1:t1,time2:t2,data,hora,local};
+  salvarTudo();
+  document.getElementById('modalEditarPartida').style.display='none';
+  partidaEditIndex=null;
+});
+
+/* ===== atualizar tudo ===== */
+function atualizarTudo(){
+  atualizarJogadores();
+  atualizarTimes();
+  atualizarPartidas();
+}
+
+/* fechar modais clicando fora */
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click', (ev)=>{ if(ev.target === m) m.style.display='none'; });
+});
 </script>
 </body>
 </html>
