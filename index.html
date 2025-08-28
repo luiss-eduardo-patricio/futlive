@@ -14,16 +14,16 @@
     padding: 0.8rem 2rem; z-index: 1000;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
-  header .logo img { height: 40px; }
+  header .logo img { height: 50px; }
   nav a {
     margin-left: 1.5rem; text-decoration:none; color:#333;
     font-weight: 500; transition: color 0.3s;
   }
   nav a:hover { color:#ff4d4f; }
-  main { padding-top: 80px; }
-  section { display:none; padding: 2rem; min-height: calc(100vh - 80px); }
+  main { padding-top: 100px; }
+  section { display:none; padding: 2rem; min-height: calc(100vh - 100px); }
   section.active { display:block; }
-  h1 { margin-bottom: 1rem; color:#ff4d4f; }
+  h1 { margin-bottom: 1rem; color:#000; }
   .cards { display:flex; flex-wrap: wrap; gap:1rem; justify-content:center; }
   .card {
     background: #fff; border-radius: 12px; padding:1.2rem;
@@ -69,7 +69,9 @@
   .modal-jogador .info { display:flex; gap:0.6rem; align-items:center; }
   .modal-jogador button { background:#ff4d4f; color:#fff; border:none; padding:0.3rem 0.6rem; border-radius:6px; cursor:pointer; }
   .modal-jogador button:hover { background:#e04345; }
-  @media (max-width:720px){ .partida-card { width: 95%; } .card { width: 45%; } }
+  .home-header { display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:2rem; }
+  .home-header img { height: 120px; }
+  @media (max-width:720px){ .partida-card { width: 95%; } .card { width: 45%; } .home-header { flex-direction:column; } }
 </style>
 </head>
 <body>
@@ -81,13 +83,12 @@
     <a href="#" data-section="jogadores">Gerenciar Jogadores</a>
     <a href="#" data-section="times">Gerenciar Times</a>
     <a href="#" data-section="partidas">Agendar Partidas</a>
-    <a href="#" data-section="telaJogo">Tela do Jogo</a>
   </nav>
 </header>
 
 <main>
   <section id="home" class="active">
-    <h1>Bem-vindo ao FutLive!</h1>
+    <div class="home-header"><img src="logo.png" alt="FutLive Logo"><h1>Bem-vindo ao FutLive!</h1></div>
     <div class="cards" id="cardsPartidasHome"><p>Nenhuma partida agendada ainda.</p></div>
   </section>
 
@@ -123,11 +124,6 @@
     </form>
     <div class="cards" id="listaPartidas"></div>
   </section>
-
-  <section id="telaJogo">
-    <h1>Tela do Jogo</h1>
-    <p>Visualização do jogo em tempo real (placeholder)</p>
-  </section>
 </main>
 
 <div class="modal" id="modalTime">
@@ -142,7 +138,6 @@
   </div>
 </div>
 
-<!-- Modal de edição de jogador -->
 <div class="modal" id="modalEditarJogador">
   <div class="modal-content">
     <h2>Editar Jogador</h2>
@@ -191,30 +186,21 @@ function abrirModalEditar(idx){
   document.getElementById('editarFuncao').value = jogadores[idx].funcao;
   document.getElementById('modalEditarJogador').style.display='flex';
 }
+function fecharModalEditar(){ document.getElementById('modalEditarJogador').style.display='none'; jogadorEditando=null; }
 
-function fecharModalEditar(){
-  document.getElementById('modalEditarJogador').style.display='none';
-  jogadorEditando = null;
-}
-
-document.getElementById('formEditarJogador').addEventListener('submit', e => {
+document.getElementById('formEditarJogador').addEventListener('submit', e=>{
   e.preventDefault();
-  if(jogadorEditando !== null){
-    const novoNome = document.getElementById('editarNome').value.trim();
-    const novaFuncao = document.getElementById('editarFuncao').value.trim();
-    if(novoNome && novaFuncao){
-      jogadores[jogadorEditando].nome = novoNome;
-      jogadores[jogadorEditando].funcao = novaFuncao;
-      salvarTudo();
-      fecharModalEditar();
-    }
+  if(jogadorEditando!==null){
+    const novoNome=document.getElementById('editarNome').value.trim();
+    const novaFuncao=document.getElementById('editarFuncao').value.trim();
+    if(novoNome&&novaFuncao){ jogadores[jogadorEditando].nome=novoNome; jogadores[jogadorEditando].funcao=novaFuncao; salvarTudo(); fecharModalEditar(); }
   }
 });
 
 function atualizarTimes(){
-  const lista = document.getElementById('listaTimes');
-  const sel1 = document.getElementById('time1');
-  const sel2 = document.getElementById('time2');
+  const lista=document.getElementById('listaTimes');
+  const sel1=document.getElementById('time1');
+  const sel2=document.getElementById('time2');
   lista.innerHTML=''; sel1.innerHTML='<option value="">Time 1</option>'; sel2.innerHTML='<option value="">Time 2</option>';
   times.forEach((t,idx)=>{
     const card=document.createElement('div'); card.className='card'; card.style.border=`3px solid ${t.cor}`;
@@ -248,9 +234,19 @@ function salvarTudo(){
   atualizarJogadores(); atualizarTimes(); atualizarPartidas();
 }
 
+// Formulários
 document.getElementById('formJogador').addEventListener('submit', e=>{
-  e.preventDefault();
-  const nome=document.getElementById('nomeJogador').value.trim();
-  const funcao=document.getElementById('funcaoJogador').value.trim();
-  if(!nome||!funcao) return;
-  jogadores.push
+  e.preventDefault(); const nome=document.getElementById('nomeJogador').value.trim(); const funcao=document.getElementById('funcaoJogador').value.trim(); if(!nome||!funcao)return; jogadores.push({nome,funcao}); salvarTudo(); e.target.reset();
+});
+
+document.getElementById('formTime').addEventListener('submit', e=>{
+  e.preventDefault(); const nome=document.getElementById('nomeTime').value; const cor=document.getElementById('corTime').value;
+  const escudoFile=document.getElementById('escudoTime').files[0];
+  if(escudoFile){ const reader=new FileReader(); reader.onload=()=>{ times.push({nome,cor,escudo:reader.result,jogadores:[]}); salvarTudo(); }; reader.readAsDataURL(escudoFile); }else{ times.push({nome,cor,escudo:null,jogadores:[]}); salvarTudo(); }
+  e.target.reset();
+});
+
+document.getElementById('formPartida').addEventListener('submit', e=>{
+  e.preventDefault(); const time1=document.getElementById('time1').value; const time2=document.getElementById('time2').value; const data=document.getElementById('dataPartida').value;
+  const local=document.getElementById('localPartida').value.trim();
+  if(time1&&time2&&time1!==time2&&local){ partidas.push({time1,time
