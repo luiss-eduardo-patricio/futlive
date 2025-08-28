@@ -46,7 +46,7 @@
 <body>
 
 <header>
-  <div class="logo"><img id="logoTop" alt="FutLive Logo"></div>
+  <div class="logo"><img id="logoTop" src="110003af-2940-42c0-ac1c-6cf9c6ad0916.png" alt="FutLive Logo"></div>
   <nav>
     <a href="#home" data-section="home">Início</a>
     <a href="#jogadores" data-section="jogadores">Gerenciar Jogadores</a>
@@ -58,20 +58,10 @@
 <main>
   <section id="home" class="active">
     <div class="home-header">
-      <img id="logoHome" alt="FutLive Logo">
+      <img id="logoHome" src="110003af-2940-42c0-ac1c-6cf9c6ad0916.png" alt="FutLive Logo">
       <h1>Bem-vindo ao FutLive!</h1>
     </div>
     <div class="cards" id="cardsPartidasHome"><p>Nenhuma partida agendada ainda.</p></div>
-  </section>
-
-  <section id="jogadores">
-    <h1>Gerenciar Jogadores</h1>
-    <form id="formJogador">
-      <input type="text" id="nomeJogador" placeholder="Nome Completo" required>
-      <input type="text" id="funcaoJogador" placeholder="Função (ex: Goleiro)" required>
-      <button type="submit">Adicionar Jogador</button>
-    </form>
-    <div class="cards" id="listaJogadores"></div>
   </section>
 
   <section id="times">
@@ -91,6 +81,7 @@
       <select id="time1"></select>
       <select id="time2"></select>
       <input type="date" id="dataPartida" required>
+      <input type="time" id="horaPartida" required>
       <input type="text" id="localPartida" placeholder="Local da Partida" required>
       <button type="submit">Agendar Partida</button>
     </form>
@@ -98,108 +89,28 @@
   </section>
 </main>
 
-<!-- Modal Time -->
-<div class="modal" id="modalTime">
+<!-- Modal Editar Time -->
+<div class="modal" id="modalEditarTime">
   <div class="modal-content">
-    <h2 id="modalTimeNome"></h2>
-    <div id="modalJogadores"></div>
-    <select id="addJogadorSelect"></select>
-    <div style="display:flex;gap:8px;margin-top:8px;">
-      <button id="addJogadorTime">Adicionar ao Time</button>
-      <button type="button" onclick="fecharModal()">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Editar Jogador -->
-<div class="modal" id="modalEditarJogador">
-  <div class="modal-content">
-    <h2>Editar Jogador</h2>
-    <form id="formEditarJogador">
-      <input type="text" id="editarNome" placeholder="Nome" required>
-      <input type="text" id="editarFuncao" placeholder="Função" required>
+    <h2>Editar Time</h2>
+    <form id="formEditarTime">
+      <input type="text" id="editarNomeTime" placeholder="Nome do Time" required>
+      <input type="color" id="editarCorTime" required>
+      <input type="file" id="editarEscudoTime" accept="image/*">
       <div style="display:flex;gap:8px;margin-top:8px;">
         <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModalEditar()">Cancelar</button>
+        <button type="button" onclick="fecharModalEditarTime()">Cancelar</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-/* === LOGO embutida (WebP) === */
-const LOGO_DATA = "data:image/webp;base64,{{B64}}".replace("{{B64}}",
-"{{INLINE}}");
-/* === Navegação por hash (#home, #jogadores, ...) === */
-const sections = document.querySelectorAll('main section');
-function showSection(id){
-  sections.forEach(sec=>sec.classList.remove('active'));
-  const el = document.getElementById(id) || document.getElementById('home');
-  el.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function handleHash(){ const id = (location.hash||'#home').substring(1); showSection(id); }
-window.addEventListener('hashchange', handleHash);
-document.addEventListener('DOMContentLoaded', ()=>{
-  // aplica logo
-  const lt = document.getElementById('logoTop');
-  const lh = document.getElementById('logoHome');
-  if(lt) lt.src = LOGO_DATA;
-  if(lh) lh.src = LOGO_DATA;
-  handleHash();
-  // carrega dados
-  atualizarJogadores(); atualizarTimes(); atualizarPartidas();
-});
-
-/* === Estado (LocalStorage) === */
+/* === Estado === */
 let jogadores = JSON.parse(localStorage.getItem('jogadores')||'[]');
 let times = JSON.parse(localStorage.getItem('times')||'[]');
 let partidas = JSON.parse(localStorage.getItem('partidas')||'[]');
-let timeSelecionado = null;
-let jogadorEditando = null;
-
-/* === Jogadores === */
-function atualizarJogadores(){
-  const lista = document.getElementById('listaJogadores');
-  lista.innerHTML = '';
-  if(!jogadores.length){ lista.innerHTML = '<p>Nenhum jogador cadastrado.</p>'; return; }
-  jogadores.forEach((j, idx)=>{
-    const card = document.createElement('div');
-    card.className='card';
-    card.innerHTML = `
-      <h3>${j.nome}</h3>
-      <p>${j.funcao}</p>
-      <div style="display:flex;gap:8px;">
-        <button onclick="abrirModalEditar(${idx})">Editar</button>
-        <button onclick="removerJogador(${idx})">Excluir</button>
-      </div>`;
-    lista.appendChild(card);
-  });
-}
-function abrirModalEditar(idx){
-  jogadorEditando = idx;
-  document.getElementById('editarNome').value = jogadores[idx].nome;
-  document.getElementById('editarFuncao').value = jogadores[idx].funcao;
-  document.getElementById('modalEditarJogador').style.display='flex';
-}
-function fecharModalEditar(){ document.getElementById('modalEditarJogador').style.display='none'; jogadorEditando=null; }
-document.getElementById('formEditarJogador').addEventListener('submit', e=>{
-  e.preventDefault();
-  if(jogadorEditando!==null){
-    const novoNome = document.getElementById('editarNome').value.trim();
-    const novaFuncao = document.getElementById('editarFuncao').value.trim();
-    if(novoNome && novaFuncao){
-      jogadores[jogadorEditando].nome = novoNome;
-      jogadores[jogadorEditando].funcao = novaFuncao;
-      salvarTudo(); fecharModalEditar();
-    }
-  }
-});
-function removerJogador(idx){
-  // também remove o jogador dos times em que estiver
-  times = times.map(t=>({...t, jogadores:(t.jogadores||[]).filter(i=>i!==idx).map(i=> i>idx? i-1 : i)}));
-  jogadores.splice(idx,1); salvarTudo();
-}
+let timeEditando = null;
 
 /* === Times === */
 function atualizarTimes(){
@@ -213,8 +124,8 @@ function atualizarTimes(){
     card.style.border = `3px solid ${t.cor}`;
     card.innerHTML = `
       <h3>${t.nome}</h3>
-      <div style="display:flex;gap:8px;">
-        <button onclick="abrirModal(${idx})">Gerenciar Jogadores</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <button onclick="abrirEditarTime(${idx})">Editar</button>
         <button onclick="removerTime(${idx})">Excluir</button>
       </div>`;
     lista.appendChild(card);
@@ -223,6 +134,27 @@ function atualizarTimes(){
   });
 }
 function removerTime(idx){ times.splice(idx,1); salvarTudo(); }
+function abrirEditarTime(idx){
+  timeEditando = idx;
+  document.getElementById('editarNomeTime').value = times[idx].nome;
+  document.getElementById('editarCorTime').value = times[idx].cor;
+  document.getElementById('modalEditarTime').style.display='flex';
+}
+function fecharModalEditarTime(){ document.getElementById('modalEditarTime').style.display='none'; timeEditando=null; }
+document.getElementById('formEditarTime').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(timeEditando!==null){
+    const nome = document.getElementById('editarNomeTime').value.trim();
+    const cor = document.getElementById('editarCorTime').value;
+    const escudoFile = document.getElementById('editarEscudoTime').files[0];
+    const salvar = (esc)=>{ times[timeEditando] = {...times[timeEditando], nome, cor, escudo:esc||times[timeEditando].escudo}; salvarTudo(); fecharModalEditarTime(); };
+    if(escudoFile){
+      const reader = new FileReader();
+      reader.onload = ()=> salvar(reader.result);
+      reader.readAsDataURL(escudoFile);
+    } else salvar(null);
+  }
+});
 
 /* === Partidas === */
 function atualizarPartidas(){
@@ -235,118 +167,44 @@ function atualizarPartidas(){
     cardAdmin.className='card';
     cardAdmin.innerHTML = `
       <h3>${p.time1} vs ${p.time2}</h3>
-      <p>${p.data} - ${p.local}</p>
+      <p>${p.data} ${p.hora} - ${p.local}</p>
       <button onclick="removerPartida(${idx})">Excluir</button>`;
     lista.appendChild(cardAdmin);
 
     const cardHome = document.createElement('div');
     cardHome.className='partida-card';
-    const time1Obj = times.find(t=>t.nome===p.time1);
-    const time2Obj = times.find(t=>t.nome===p.time2);
-    const escudo1 = time1Obj?.escudo
-      ? `<img src="${time1Obj.escudo}" alt="${p.time1}">`
-      : `<div class="escudo-placeholder" style="background:${time1Obj?.cor||'#999'}">${p.time1.charAt(0).toUpperCase()}</div>`;
-    const escudo2 = time2Obj?.escudo
-      ? `<img src="${time2Obj.escudo}" alt="${p.time2}">`
-      : `<div class="escudo-placeholder" style="background:${time2Obj?.cor||'#999'}">${p.time2.charAt(0).toUpperCase()}</div>`;
     cardHome.innerHTML = `
-      <div class="partida-times">${escudo1}<span>X</span>${escudo2}</div>
+      <div class="partida-times"><span>${p.time1}</span> X <span>${p.time2}</span></div>
       <h3>${p.time1} vs ${p.time2}</h3>
-      <p><strong>Data:</strong> ${p.data}</p>
+      <p><strong>Data:</strong> ${p.data} - ${p.hora}</p>
       <p><strong>Local:</strong> ${p.local}</p>`;
     listaHome.appendChild(cardHome);
   });
 }
 function removerPartida(idx){ partidas.splice(idx,1); salvarTudo(); }
 
-/* === Persistência === */
-function salvarTudo(){
-  localStorage.setItem('jogadores', JSON.stringify(jogadores));
-  localStorage.setItem('times', JSON.stringify(times));
-  localStorage.setItem('partidas', JSON.stringify(partidas));
-  atualizarJogadores(); atualizarTimes(); atualizarPartidas();
-}
-
 /* === Forms === */
-document.getElementById('formJogador').addEventListener('submit', e=>{
-  e.preventDefault();
-  const nome = document.getElementById('nomeJogador').value.trim();
-  const funcao = document.getElementById('funcaoJogador').value.trim();
-  if(!nome || !funcao) return;
-  jogadores.push({nome, funcao});
-  salvarTudo(); e.target.reset();
-});
-
-document.getElementById('formTime').addEventListener('submit', e=>{
-  e.preventDefault();
-  const nome = document.getElementById('nomeTime').value.trim();
-  const cor = document.getElementById('corTime').value;
-  const escudoFile = document.getElementById('escudoTime').files[0];
-  const pushTime = (esc)=>{ times.push({nome, cor, escudo:esc||null, jogadores:[]}); salvarTudo(); };
-  if(escudoFile){
-    const reader = new FileReader();
-    reader.onload = ()=> pushTime(reader.result);
-    reader.readAsDataURL(escudoFile);
-  }else pushTime(null);
-  e.target.reset();
-});
-
 document.getElementById('formPartida').addEventListener('submit', e=>{
   e.preventDefault();
   const time1 = document.getElementById('time1').value;
   const time2 = document.getElementById('time2').value;
   const data = document.getElementById('dataPartida').value;
+  const hora = document.getElementById('horaPartida').value;
   const local = document.getElementById('localPartida').value.trim();
-  if(time1 && time2 && time1!==time2 && data && local){
-    partidas.push({time1,time2,data,local});
+  if(time1 && time2 && time1!==time2 && data && hora && local){
+    partidas.push({time1,time2,data,hora,local});
     salvarTudo(); e.target.reset();
   }
 });
 
-/* === Modal Gerenciar Jogadores do Time === */
-function abrirModal(idx){
-  timeSelecionado = idx;
-  document.getElementById('modalTimeNome').innerText = times[idx].nome;
-  atualizarModalJogadores();
-  document.getElementById('modalTime').style.display='flex';
+/* === Persistência === */
+function salvarTudo(){
+  localStorage.setItem('times', JSON.stringify(times));
+  localStorage.setItem('partidas', JSON.stringify(partidas));
+  atualizarTimes(); atualizarPartidas();
 }
-function fecharModal(){ document.getElementById('modalTime').style.display='none'; timeSelecionado=null; }
-function atualizarModalJogadores(){
-  const lista = document.getElementById('modalJogadores');
-  const sel = document.getElementById('addJogadorSelect');
-  lista.innerHTML=''; sel.innerHTML='';
-  jogadores.forEach((j, i)=> sel.innerHTML += `<option value="${i}">${j.nome} - ${j.funcao}</option>`);
-  const indices = times[timeSelecionado].jogadores || [];
-  if(!indices.length){ lista.innerHTML = '<p>Nenhum jogador neste time.</p>'; return; }
-  indices.forEach((i, pos)=>{
-    const j = jogadores[i];
-    if(!j) return;
-    const row = document.createElement('div');
-    row.className='modal-jogador';
-    row.innerHTML = `
-      <div class="info"><strong>${j.nome}</strong><span>(${j.funcao})</span></div>
-      <button onclick="removerJogadorDoTime(${pos})">Remover</button>`;
-    lista.appendChild(row);
-  });
-}
-document.getElementById('addJogadorTime').addEventListener('click', ()=>{
-  const sel = document.getElementById('addJogadorSelect');
-  const idxJog = Number(sel.value);
-  if(Number.isInteger(idxJog)){
-    const arr = times[timeSelecionado].jogadores || [];
-    if(!arr.includes(idxJog)){
-      arr.push(idxJog);
-      times[timeSelecionado].jogadores = arr;
-      salvarTudo(); atualizarModalJogadores();
-    }
-  }
-});
-function removerJogadorDoTime(pos){
-  const arr = times[timeSelecionado].jogadores || [];
-  arr.splice(pos,1);
-  times[timeSelecionado].jogadores = arr;
-  salvarTudo(); atualizarModalJogadores();
-}
+
+document.addEventListener('DOMContentLoaded', ()=>{ atualizarTimes(); atualizarPartidas(); });
 </script>
 </body>
 </html>
