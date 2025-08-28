@@ -69,8 +69,8 @@
   .modal-jogador .info { display:flex; gap:0.6rem; align-items:center; }
   .modal-jogador button { background:#ff4d4f; color:#fff; border:none; padding:0.3rem 0.6rem; border-radius:6px; cursor:pointer; }
   .modal-jogador button:hover { background:#e04345; }
-  .home-header { display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:2rem; }
-  .home-header img { height: 120px; }
+  .home-header { display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:2rem; flex-wrap:wrap; }
+  .home-header img { height: 160px; }
   @media (max-width:720px){ .partida-card { width: 95%; } .card { width: 45%; } .home-header { flex-direction:column; } }
 </style>
 </head>
@@ -88,7 +88,10 @@
 
 <main>
   <section id="home" class="active">
-    <div class="home-header"><img src="logo.png" alt="FutLive Logo"><h1>Bem-vindo ao FutLive!</h1></div>
+    <div class="home-header">
+      <img src="logo.png" alt="FutLive Logo">
+      <h1>Bem-vindo ao FutLive!</h1>
+    </div>
     <div class="cards" id="cardsPartidasHome"><p>Nenhuma partida agendada ainda.</p></div>
   </section>
 
@@ -160,6 +163,7 @@ links.forEach(link => link.addEventListener('click', e => {
   const target = link.dataset.section;
   sections.forEach(sec => sec.classList.remove('active'));
   document.getElementById(target).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
 }));
 
 let jogadores = JSON.parse(localStorage.getItem('jogadores')) || [];
@@ -249,4 +253,14 @@ document.getElementById('formTime').addEventListener('submit', e=>{
 document.getElementById('formPartida').addEventListener('submit', e=>{
   e.preventDefault(); const time1=document.getElementById('time1').value; const time2=document.getElementById('time2').value; const data=document.getElementById('dataPartida').value;
   const local=document.getElementById('localPartida').value.trim();
-  if(time1&&time2&&time1!==time2&&local){ partidas.push({time1,time
+  if(time1&&time2&&time1!==time2&&local){ partidas.push({time1,time2,data,local}); salvarTudo(); e.target.reset(); }
+});
+
+// Modal time
+function abrirModal(idx){ timeSelecionado=idx; document.getElementById('modalTimeNome').innerText=times[idx].nome; atualizarModalJogadores(); document.getElementById('modalTime').style.display='flex'; }
+function fecharModal(){ document.getElementById('modalTime').style.display='none'; timeSelecionado=null; }
+function atualizarModalJogadores(){
+  const lista=document.getElementById('modalJogadores'); lista.innerHTML=''; const sel=document.getElementById('addJogadorSelect'); sel.innerHTML='';
+  jogadores.forEach((j,idx)=>{ sel.innerHTML+=`<option value='${idx}'>${j.nome} - ${j.funcao}</option>`; });
+  if(times[timeSelecionado].jogadores.length===0){ lista.innerHTML='<p>Nenhum jogador neste time.</p>'; return; }
+  times[time
