@@ -16,9 +16,8 @@
   section.active{display:block}
   h1{margin-bottom:1rem;color:#000}
   .cards{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
-  .card{background:#fff;border-radius:12px;padding:1.2rem;width:220px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .3s,box-shadow .3s}
+  .card{background:#fff;border-radius:12px;padding:1.2rem;width:240px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .3s,box-shadow .3s}
   .card:hover{transform:translateY(-5px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
-  .card img{width:80px;height:80px;object-fit:contain;margin-bottom:.8rem}
   .card button{margin-top:.5rem;padding:.5rem 1rem;border:none;border-radius:8px;background:#ff4d4f;color:#fff;cursor:pointer;transition:background .3s}
   .card button:hover{background:#e04345}
   form{display:flex;flex-direction:column;gap:.8rem;max-width:300px;margin:1rem auto}
@@ -30,14 +29,7 @@
   .partida-card{background:linear-gradient(180deg,#ffffff 0%,#fffaf9 100%);border-radius:16px;padding:1.2rem;width:320px;box-shadow:0 8px 28px rgba(0,0,0,.12);text-align:center;transition:transform .35s,box-shadow .35s;border:1px solid rgba(0,0,0,.04)}
   .partida-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(0,0,0,.16)}
   .partida-times{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.8rem}
-  .partida-times img{width:78px;height:78px;object-fit:contain;border-radius:10px;background:#fff;padding:6px}
   .partida-times span{font-size:1.4rem;font-weight:800;color:#ff4d4f}
-  .escudo-placeholder{width:78px;height:78px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.6rem}
-  #modalJogadores{display:flex;flex-direction:column;gap:.6rem;max-height:300px;overflow:auto;margin:.6rem 0}
-  .modal-jogador{display:flex;align-items:center;justify-content:space-between;background:#f8f8f8;border-radius:8px;padding:.5rem .8rem}
-  .modal-jogador .info{display:flex;gap:.6rem;align-items:center}
-  .modal-jogador button{background:#ff4d4f;color:#fff;border:none;padding:.3rem .6rem;border-radius:6px;cursor:pointer}
-  .modal-jogador button:hover{background:#e04345}
   .home-header{display:flex;align-items:center;gap:1rem;justify-content:center;margin-bottom:2rem;flex-wrap:wrap}
   .home-header img{height:160px}
   @media (max-width:720px){.partida-card{width:95%}.card{width:45%}.home-header{flex-direction:column}}
@@ -94,7 +86,7 @@
   <div class="modal-content">
     <h2>Editar Time</h2>
     <form id="formEditarTime">
-      <input type="text" id="editarNomeTime" placeholder="Nome do Time" required>
+      <input type="text" id="editarNomeTime" required>
       <input type="color" id="editarCorTime" required>
       <input type="file" id="editarEscudoTime" accept="image/*">
       <div style="display:flex;gap:8px;margin-top:8px;">
@@ -105,106 +97,127 @@
   </div>
 </div>
 
+<!-- Modal Editar Partida -->
+<div class="modal" id="modalEditarPartida">
+  <div class="modal-content">
+    <h2>Editar Partida</h2>
+    <form id="formEditarPartida">
+      <select id="editarTime1"></select>
+      <select id="editarTime2"></select>
+      <input type="date" id="editarDataPartida" required>
+      <input type="time" id="editarHoraPartida" required>
+      <input type="text" id="editarLocalPartida" required>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="fecharModalEditarPartida()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-/* === Estado === */
-let jogadores = JSON.parse(localStorage.getItem('jogadores')||'[]');
 let times = JSON.parse(localStorage.getItem('times')||'[]');
 let partidas = JSON.parse(localStorage.getItem('partidas')||'[]');
 let timeEditando = null;
+let partidaEditando = null;
 
-/* === Times === */
+/* === TIMES === */
 function atualizarTimes(){
-  const lista = document.getElementById('listaTimes');
-  const sel1 = document.getElementById('time1');
-  const sel2 = document.getElementById('time2');
+  const lista=document.getElementById('listaTimes');
+  const sel1=document.getElementById('time1'), sel2=document.getElementById('time2');
+  const es1=document.getElementById('editarTime1'), es2=document.getElementById('editarTime2');
   lista.innerHTML=''; sel1.innerHTML='<option value="">Time 1</option>'; sel2.innerHTML='<option value="">Time 2</option>';
-  times.forEach((t, idx)=>{
-    const card = document.createElement('div');
-    card.className='card';
-    card.style.border = `3px solid ${t.cor}`;
-    card.innerHTML = `
-      <h3>${t.nome}</h3>
+  es1.innerHTML='<option value="">Time 1</option>'; es2.innerHTML='<option value="">Time 2</option>';
+  times.forEach((t,i)=>{
+    const card=document.createElement('div'); card.className='card';
+    card.style.border=`3px solid ${t.cor}`;
+    card.innerHTML=`<h3>${t.nome}</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <button onclick="abrirEditarTime(${idx})">Editar</button>
-        <button onclick="removerTime(${idx})">Excluir</button>
+        <button onclick="abrirEditarTime(${i})">Editar</button>
+        <button onclick="removerTime(${i})">Excluir</button>
       </div>`;
     lista.appendChild(card);
-    sel1.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
-    sel2.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+    sel1.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
+    sel2.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
+    es1.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
+    es2.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`;
   });
 }
-function removerTime(idx){ times.splice(idx,1); salvarTudo(); }
-function abrirEditarTime(idx){
-  timeEditando = idx;
-  document.getElementById('editarNomeTime').value = times[idx].nome;
-  document.getElementById('editarCorTime').value = times[idx].cor;
-  document.getElementById('modalEditarTime').style.display='flex';
-}
-function fecharModalEditarTime(){ document.getElementById('modalEditarTime').style.display='none'; timeEditando=null; }
-document.getElementById('formEditarTime').addEventListener('submit', e=>{
-  e.preventDefault();
-  if(timeEditando!==null){
-    const nome = document.getElementById('editarNomeTime').value.trim();
-    const cor = document.getElementById('editarCorTime').value;
-    const escudoFile = document.getElementById('editarEscudoTime').files[0];
-    const salvar = (esc)=>{ times[timeEditando] = {...times[timeEditando], nome, cor, escudo:esc||times[timeEditando].escudo}; salvarTudo(); fecharModalEditarTime(); };
-    if(escudoFile){
-      const reader = new FileReader();
-      reader.onload = ()=> salvar(reader.result);
-      reader.readAsDataURL(escudoFile);
-    } else salvar(null);
+function removerTime(i){times.splice(i,1);salvarTudo();}
+function abrirEditarTime(i){timeEditando=i;
+  document.getElementById('editarNomeTime').value=times[i].nome;
+  document.getElementById('editarCorTime').value=times[i].cor;
+  document.getElementById('modalEditarTime').style.display='flex';}
+function fecharModalEditarTime(){document.getElementById('modalEditarTime').style.display='none';timeEditando=null;}
+document.getElementById('formEditarTime').addEventListener('submit',e=>{
+  e.preventDefault(); if(timeEditando!==null){
+    const nome=document.getElementById('editarNomeTime').value.trim();
+    const cor=document.getElementById('editarCorTime').value;
+    const file=document.getElementById('editarEscudoTime').files[0];
+    const salvar=(esc)=>{times[timeEditando]={...times[timeEditando],nome,cor,escudo:esc||times[timeEditando].escudo};salvarTudo();fecharModalEditarTime();};
+    if(file){const r=new FileReader();r.onload=()=>salvar(r.result);r.readAsDataURL(file);}else salvar(null);
   }
 });
 
-/* === Partidas === */
+/* === PARTIDAS === */
 function atualizarPartidas(){
-  const lista = document.getElementById('listaPartidas');
-  const listaHome = document.getElementById('cardsPartidasHome');
-  lista.innerHTML=''; listaHome.innerHTML='';
-  if(!partidas.length){ listaHome.innerHTML='<p>Nenhuma partida agendada ainda.</p>'; return; }
-  partidas.forEach((p, idx)=>{
-    const cardAdmin = document.createElement('div');
-    cardAdmin.className='card';
-    cardAdmin.innerHTML = `
-      <h3>${p.time1} vs ${p.time2}</h3>
+  const lista=document.getElementById('listaPartidas');
+  const home=document.getElementById('cardsPartidasHome');
+  lista.innerHTML=''; home.innerHTML='';
+  if(!partidas.length){home.innerHTML='<p>Nenhuma partida agendada ainda.</p>';return;}
+  partidas.forEach((p,i)=>{
+    const c1=document.createElement('div'); c1.className='card';
+    c1.innerHTML=`<h3>${p.time1} vs ${p.time2}</h3>
       <p>${p.data} ${p.hora} - ${p.local}</p>
-      <button onclick="removerPartida(${idx})">Excluir</button>`;
-    lista.appendChild(cardAdmin);
-
-    const cardHome = document.createElement('div');
-    cardHome.className='partida-card';
-    cardHome.innerHTML = `
-      <div class="partida-times"><span>${p.time1}</span> X <span>${p.time2}</span></div>
+      <button onclick="abrirEditarPartida(${i})">Editar</button>
+      <button onclick="removerPartida(${i})">Excluir</button>`;
+    lista.appendChild(c1);
+    const c2=document.createElement('div'); c2.className='partida-card';
+    c2.innerHTML=`<div class="partida-times"><span>${p.time1}</span> X <span>${p.time2}</span></div>
       <h3>${p.time1} vs ${p.time2}</h3>
       <p><strong>Data:</strong> ${p.data} - ${p.hora}</p>
       <p><strong>Local:</strong> ${p.local}</p>`;
-    listaHome.appendChild(cardHome);
+    home.appendChild(c2);
   });
 }
-function removerPartida(idx){ partidas.splice(idx,1); salvarTudo(); }
+function removerPartida(i){partidas.splice(i,1);salvarTudo();}
+function abrirEditarPartida(i){partidaEditando=i;
+  const p=partidas[i];
+  document.getElementById('editarTime1').value=p.time1;
+  document.getElementById('editarTime2').value=p.time2;
+  document.getElementById('editarDataPartida').value=p.data;
+  document.getElementById('editarHoraPartida').value=p.hora;
+  document.getElementById('editarLocalPartida').value=p.local;
+  document.getElementById('modalEditarPartida').style.display='flex';}
+function fecharModalEditarPartida(){document.getElementById('modalEditarPartida').style.display='none';partidaEditando=null;}
+document.getElementById('formEditarPartida').addEventListener('submit',e=>{
+  e.preventDefault(); if(partidaEditando!==null){
+    partidas[partidaEditando]={
+      time1:document.getElementById('editarTime1').value,
+      time2:document.getElementById('editarTime2').value,
+      data:document.getElementById('editarDataPartida').value,
+      hora:document.getElementById('editarHoraPartida').value,
+      local:document.getElementById('editarLocalPartida').value
+    };
+    salvarTudo();fecharModalEditarPartida();
+  }
+});
 
-/* === Forms === */
-document.getElementById('formPartida').addEventListener('submit', e=>{
+/* === FORM NOVA PARTIDA === */
+document.getElementById('formPartida').addEventListener('submit',e=>{
   e.preventDefault();
-  const time1 = document.getElementById('time1').value;
-  const time2 = document.getElementById('time2').value;
-  const data = document.getElementById('dataPartida').value;
-  const hora = document.getElementById('horaPartida').value;
-  const local = document.getElementById('localPartida').value.trim();
-  if(time1 && time2 && time1!==time2 && data && hora && local){
+  const time1=document.getElementById('time1').value, time2=document.getElementById('time2').value;
+  const data=document.getElementById('dataPartida').value, hora=document.getElementById('horaPartida').value;
+  const local=document.getElementById('localPartida').value.trim();
+  if(time1&&time2&&time1!==time2&&data&&hora&&local){
     partidas.push({time1,time2,data,hora,local});
     salvarTudo(); e.target.reset();
   }
 });
 
-/* === Persistência === */
-function salvarTudo(){
-  localStorage.setItem('times', JSON.stringify(times));
-  localStorage.setItem('partidas', JSON.stringify(partidas));
-  atualizarTimes(); atualizarPartidas();
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{ atualizarTimes(); atualizarPartidas(); });
+/* === SALVAR === */
+function salvarTudo(){localStorage.setItem('times',JSON.stringify(times));localStorage.setItem('partidas',JSON.stringify(partidas));atualizarTimes();atualizarPartidas();}
+document.addEventListener('DOMContentLoaded',()=>{atualizarTimes();atualizarPartidas();});
 </script>
 </body>
 </html>
