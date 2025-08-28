@@ -2,306 +2,264 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FutLive</title>
+  <title>FutLive.com</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f9;
-      color: #333;
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #111;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 30px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      z-index: 1000;
-    }
-
-    header img {
-      height: 50px;
-    }
-
-    nav a {
-      margin: 0 12px;
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: #f0c040;
-    }
-
-    main {
-      margin-top: 90px;
-      padding: 20px;
-    }
-
-    section {
-      display: none;
-    }
-
-    section.active {
-      display: block;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 15px auto;
-      max-width: 500px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    button {
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background: #f0c040;
-      color: #111;
-    }
-
-    .list {
-      margin-top: 20px;
-    }
-
-    .list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #eee;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-
-    .team-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-    }
-
-    .team-card img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 400px;
-    }
-
+    * {margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body {background:#f8f9fa;color:#333;}
+    header {position:fixed;top:0;left:0;right:0;background:#222;color:#fff;padding:15px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+    header h1 {font-size:1.2rem;}
+    nav a {margin:0 10px;color:#fff;text-decoration:none;font-weight:bold;cursor:pointer;}
+    nav a:hover {text-decoration:underline;}
+    main {padding:100px 20px;}
+    section {display:none;}
+    section.active {display:block;}
+    h2 {margin-bottom:15px;}
+    .card {background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.1);margin:10px 0;}
+    .form-control {margin:10px 0;}
+    .form-control input, .form-control select {width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;}
+    button {padding:10px 15px;border:none;border-radius:8px;cursor:pointer;background:#007bff;color:#fff;font-weight:bold;}
+    button:hover {background:#0056b3;}
+    .list {margin-top:20px;}
+    .list-item {background:#fff;padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin:5px 0;}
+    .actions button {margin-left:5px;background:#6c757d;}
+    .actions button:hover {background:#495057;}
+    .team-badge {display:inline-flex;align-items:center;gap:8px;}
+    .match-card {cursor:pointer;transition:.3s;}
+    .match-card:hover {transform:scale(1.02);}
+    /* Modal */
+    .modal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;}
+    .modal-content {background:#fff;padding:20px;border-radius:12px;max-width:500px;width:90%;}
+    .close {float:right;cursor:pointer;font-weight:bold;}
+    .scoreboard {display:flex;align-items:center;justify-content:center;gap:30px;margin:20px 0;font-size:1.5rem;font-weight:bold;}
+    .events {margin-top:20px;}
   </style>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="FutLive Logo">
+    <h1>⚽ FutLive.com</h1>
     <nav>
-      <a href="#" onclick="showSection('inicio')">Início</a>
-      <a href="#" onclick="showSection('jogadores')">Jogadores</a>
-      <a href="#" onclick="showSection('times')">Times</a>
-      <a href="#" onclick="showSection('partidas')">Partidas</a>
+      <a onclick="showSection('home')">Início</a>
+      <a onclick="showSection('players')">Gerenciar Jogadores</a>
+      <a onclick="showSection('teams')">Gerenciar Times</a>
+      <a onclick="showSection('matches')">Agendar Partidas</a>
     </nav>
   </header>
 
   <main>
-    <!-- Página Inicial -->
-    <section id="inicio" class="active">
+    <!-- Página inicial -->
+    <section id="home" class="active">
       <h2>Partidas Agendadas</h2>
-      <div id="partidas-list"></div>
+      <div id="matchesList"></div>
     </section>
 
-    <!-- Gerenciar Jogadores -->
-    <section id="jogadores">
+    <!-- Jogadores -->
+    <section id="players">
       <h2>Gerenciar Jogadores</h2>
-      <div class="card">
-        <input type="text" id="jogadorNome" placeholder="Nome do jogador">
-        <select id="jogadorFuncao">
-          <option value="Goleiro">Goleiro</option>
-          <option value="Defensor">Defensor</option>
-          <option value="Meio-campo">Meio-campo</option>
-          <option value="Atacante">Atacante</option>
-        </select>
-        <button onclick="addJogador()">Adicionar Jogador</button>
-      </div>
-      <div class="list" id="listaJogadores"></div>
+      <div class="form-control"><input type="text" id="playerName" placeholder="Nome completo"></div>
+      <div class="form-control"><input type="text" id="playerRole" placeholder="Função"></div>
+      <button onclick="addPlayer()">Adicionar Jogador</button>
+      <div class="list" id="playersList"></div>
     </section>
 
-    <!-- Gerenciar Times -->
-    <section id="times">
+    <!-- Times -->
+    <section id="teams">
       <h2>Gerenciar Times</h2>
-      <div class="card">
-        <input type="text" id="timeNome" placeholder="Nome do time">
-        <input type="color" id="timeCor" value="#000000">
-        <input type="file" id="timeEscudo" accept="image/*">
-        <button onclick="addTime()">Adicionar Time</button>
-      </div>
-      <div id="listaTimes"></div>
+      <div class="form-control"><input type="text" id="teamName" placeholder="Nome do Time"></div>
+      <div class="form-control"><input type="color" id="teamColor" value="#ff0000"></div>
+      <div class="form-control"><input type="file" id="teamLogo" accept="image/*"></div>
+      <button onclick="addTeam()">Criar Time</button>
+      <div class="list" id="teamsList"></div>
     </section>
 
-    <!-- Tela Partidas -->
-    <section id="partidas">
-      <h2>Agendar Partidas</h2>
-      <p style="text-align:center;">(em breve vamos montar essa tela 🚀)</p>
+    <!-- Partidas -->
+    <section id="matches">
+      <h2>Agendar Partida</h2>
+      <div class="form-control"><input type="text" id="championship" placeholder="Campeonato"></div>
+      <div class="form-control"><input type="text" id="location" placeholder="Local"></div>
+      <div class="form-control"><input type="datetime-local" id="dateTime"></div>
+      <div class="form-control">
+        <select id="teamA"></select>
+      </div>
+      <div class="form-control">
+        <select id="teamB"></select>
+      </div>
+      <button onclick="addMatch()">Agendar</button>
+    </section>
+
+    <!-- Tela do jogo -->
+    <section id="game">
+      <h2 id="gameTitle"></h2>
+      <div class="scoreboard">
+        <span id="scoreA">0</span> - <span id="scoreB">0</span>
+      </div>
+      <button onclick="goal('A')">Gol Time A</button>
+      <button onclick="goal('B')">Gol Time B</button>
+      <div class="events" id="gameEvents"></div>
     </section>
   </main>
 
-  <!-- Modal Gerenciar Jogadores do Time -->
-  <div class="modal" id="modalTime">
+  <!-- Modal adicionar jogadores ao time -->
+  <div class="modal" id="teamModal">
     <div class="modal-content">
-      <h3 id="modalTimeNome"></h3>
-      <div id="modalJogadoresTime"></div>
-      <button onclick="fecharModal()">Fechar</button>
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Adicionar Jogadores</h3>
+      <div id="teamPlayers"></div>
     </div>
   </div>
 
   <script>
-    // Navegação SPA
-    function showSection(id) {
-      document.querySelectorAll('main section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+    let teams = JSON.parse(localStorage.getItem('teams')) || [];
+    let matches = JSON.parse(localStorage.getItem('matches')) || [];
+    let currentGame = null;
+
+    function saveData() {
+      localStorage.setItem('players', JSON.stringify(players));
+      localStorage.setItem('teams', JSON.stringify(teams));
+      localStorage.setItem('matches', JSON.stringify(matches));
     }
 
-    // LocalStorage
-    let jogadores = JSON.parse(localStorage.getItem('jogadores')) || [];
-    let times = JSON.parse(localStorage.getItem('times')) || [];
+    function showSection(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if(id === 'players') renderPlayers();
+      if(id === 'teams') renderTeams();
+      if(id === 'matches') updateTeamSelects();
+      if(id === 'home') renderMatches();
+    }
 
     // Jogadores
-    function renderJogadores() {
-      const lista = document.getElementById('listaJogadores');
-      lista.innerHTML = '';
-      jogadores.forEach((j, i) => {
-        lista.innerHTML += `
-          <div class="list-item">
-            <span>${j.nome} - ${j.funcao}</span>
-            <button onclick="removeJogador(${i})">Excluir</button>
-          </div>
-        `;
+    function addPlayer() {
+      const name = document.getElementById('playerName').value.trim();
+      const role = document.getElementById('playerRole').value.trim();
+      if(!name || !role) return alert("Preencha todos os campos!");
+      if(players.some(p => p.name === name)) return alert("Jogador já existe!");
+      players.push({name, role});
+      saveData();
+      renderPlayers();
+      document.getElementById('playerName').value = '';
+      document.getElementById('playerRole').value = '';
+    }
+    function renderPlayers() {
+      const list = document.getElementById('playersList');
+      list.innerHTML = '';
+      players.forEach((p,i)=>{
+        const div = document.createElement('div');
+        div.className='list-item';
+        div.innerHTML=`${p.name} (${p.role})
+          <div class="actions">
+            <button onclick="editPlayer(${i})">✏️</button>
+            <button onclick="deletePlayer(${i})">🗑️</button>
+          </div>`;
+        list.appendChild(div);
       });
-      localStorage.setItem('jogadores', JSON.stringify(jogadores));
     }
-
-    function addJogador() {
-      const nome = document.getElementById('jogadorNome').value.trim();
-      const funcao = document.getElementById('jogadorFuncao').value;
-      if (!nome) return alert("Digite o nome do jogador");
-      jogadores.push({ nome, funcao });
-      document.getElementById('jogadorNome').value = '';
-      renderJogadores();
+    function editPlayer(i){
+      const newName = prompt("Novo nome:", players[i].name);
+      const newRole = prompt("Nova função:", players[i].role);
+      if(newName && newRole){players[i].name=newName;players[i].role=newRole;saveData();renderPlayers();}
     }
-
-    function removeJogador(i) {
-      jogadores.splice(i, 1);
-      renderJogadores();
-    }
+    function deletePlayer(i){if(confirm("Excluir jogador?")){players.splice(i,1);saveData();renderPlayers();}}
 
     // Times
-    function renderTimes() {
-      const lista = document.getElementById('listaTimes');
-      lista.innerHTML = '';
-      times.forEach((t, i) => {
-        lista.innerHTML += `
-          <div class="team-card" onclick="abrirModal(${i})">
-            <img src="${t.escudo}" alt="escudo">
-            <div>
-              <strong style="color:${t.cor}">${t.nome}</strong>
-            </div>
-          </div>
-        `;
+    function addTeam(){
+      const name=document.getElementById('teamName').value.trim();
+      const color=document.getElementById('teamColor').value;
+      const logoFile=document.getElementById('teamLogo').files[0];
+      if(!name) return alert("Informe o nome do time");
+      const reader=new FileReader();
+      reader.onload=function(e){
+        teams.push({name,color,logo:e.target.result,players:[]});
+        saveData();renderTeams();
+        document.getElementById('teamName').value='';
+        document.getElementById('teamLogo').value='';
+      };
+      if(logoFile) reader.readAsDataURL(logoFile);
+      else {teams.push({name,color,logo:'',players:[]});saveData();renderTeams();}
+    }
+    function renderTeams(){
+      const list=document.getElementById('teamsList');
+      list.innerHTML='';
+      teams.forEach((t,i)=>{
+        const div=document.createElement('div');
+        div.className='list-item';
+        div.innerHTML=`<span class="team-badge"><div style="width:20px;height:20px;background:${t.color};border-radius:50%"></div>
+          ${t.logo?'<img src="'+t.logo+'" style="width:20px;height:20px;border-radius:50%">':''} ${t.name}</span>
+          <button onclick="openModal(${i})">👥 Jogadores</button>`;
+        list.appendChild(div);
       });
-      localStorage.setItem('times', JSON.stringify(times));
+    }
+    function openModal(i){
+      const modal=document.getElementById('teamModal');modal.style.display='flex';
+      const container=document.getElementById('teamPlayers');container.innerHTML='';
+      players.forEach(p=>{
+        const chk=document.createElement('input');chk.type='checkbox';chk.value=p.name;
+        if(teams[i].players.includes(p.name)) chk.checked=true;
+        chk.onchange=function(){if(this.checked){teams[i].players.push(p.name);}else{teams[i].players=teams[i].players.filter(n=>n!==p.name);}saveData();};
+        const lbl=document.createElement('label');lbl.textContent=p.name;
+        const div=document.createElement('div');div.appendChild(chk);div.appendChild(lbl);
+        container.appendChild(div);
+      });
+    }
+    function closeModal(){document.getElementById('teamModal').style.display='none';}
+
+    // Partidas
+    function updateTeamSelects(){
+      const teamA=document.getElementById('teamA');
+      const teamB=document.getElementById('teamB');
+      teamA.innerHTML='';teamB.innerHTML='';
+      teams.forEach((t,i)=>{
+        const optA=document.createElement('option');optA.value=i;optA.textContent=t.name;
+        const optB=document.createElement('option');optB.value=i;optB.textContent=t.name;
+        teamA.appendChild(optA);teamB.appendChild(optB);
+      });
+    }
+    function addMatch(){
+      const champ=document.getElementById('championship').value.trim();
+      const loc=document.getElementById('location').value.trim();
+      const dt=document.getElementById('dateTime').value;
+      const tA=teams[document.getElementById('teamA').value];
+      const tB=teams[document.getElementById('teamB').value];
+      if(!champ||!loc||!dt||!tA||!tB) return alert("Preencha todos os campos!");
+      matches.push({champ,loc,dt,teamA:tA.name,teamB:tB.name,scoreA:0,scoreB:0,events:[]});
+      saveData();renderMatches();showSection('home');
+    }
+    function renderMatches(){
+      const list=document.getElementById('matchesList');list.innerHTML='';
+      matches.forEach((m,i)=>{
+        const div=document.createElement('div');div.className='card match-card';
+        div.onclick=()=>openGame(i);
+        div.innerHTML=`<h3>${m.champ}</h3>
+          <p><b>${m.teamA}</b> x <b>${m.teamB}</b></p>
+          <p>${m.loc} - ${new Date(m.dt).toLocaleString()}</p>`;
+        list.appendChild(div);
+      });
     }
 
-    function addTime() {
-      const nome = document.getElementById('timeNome').value.trim();
-      const cor = document.getElementById('timeCor').value;
-      const escudoInput = document.getElementById('timeEscudo');
-
-      if (!nome) return alert("Digite o nome do time");
-
-      let escudo = '';
-      if (escudoInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          escudo = e.target.result;
-          times.push({ nome, cor, escudo, jogadores: [] });
-          renderTimes();
-        };
-        reader.readAsDataURL(escudoInput.files[0]);
-      } else {
-        times.push({ nome, cor, escudo: '', jogadores: [] });
-        renderTimes();
-      }
-
-      document.getElementById('timeNome').value = '';
-      escudoInput.value = '';
+    // Tela do jogo
+    function openGame(i){
+      currentGame=i;
+      const g=matches[i];
+      document.getElementById('gameTitle').textContent=g.teamA+" x "+g.teamB;
+      document.getElementById('scoreA').textContent=g.scoreA;
+      document.getElementById('scoreB').textContent=g.scoreB;
+      const events=document.getElementById('gameEvents');events.innerHTML='';
+      g.events.forEach(ev=>{
+        const p=document.createElement('p');p.textContent=ev;events.appendChild(p);
+      });
+      showSection('game');
+    }
+    function goal(team){
+      if(currentGame===null) return;
+      if(team==='A') matches[currentGame].scoreA++;
+      else matches[currentGame].scoreB++;
+      matches[currentGame].events.push("Gol do time "+team+" aos "+new Date().toLocaleTimeString());
+      saveData();openGame(currentGame);
     }
 
-    // Modal
-    function abrirModal(i) {
-      const time = times[i];
-      document.getElementById('modalTimeNome').innerText = time.nome;
-      const lista = document.getElementById('modalJogadoresTime');
-      lista.innerHTML = '<p>(em breve: adicionar/remover jogadores no time)</p>';
-      document.getElementById('modalTime').style.display = 'flex';
-    }
-
-    function fecharModal() {
-      document.getElementById('modalTime').style.display = 'none';
-    }
-
-    // Inicialização
-    renderJogadores();
-    renderTimes();
+    // Inicializar
+    renderMatches();
   </script>
 </body>
 </html>
