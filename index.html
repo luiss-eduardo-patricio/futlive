@@ -5,80 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FutLive.com</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", sans-serif; }
-  body { background:#f7f7f7; color:#333; }
-  header {
-    position:fixed; top:0; left:0; width:100%;
-    background:#fff; border-bottom:1px solid #ddd;
-    display:flex; justify-content:space-between; align-items:center;
-    padding:0.8rem 2rem; z-index:1000;
-    box-shadow:0 2px 6px rgba(0,0,0,.05);
-  }
-  header .logo img { height:50px; display:block; }
-  nav a { margin-left:1.5rem; text-decoration:none; color:#333; font-weight:500; transition:color .3s; }
-  nav a:hover { color:#ff4d4f; }
-
-  main { padding-top:100px; }
-  section { display:none; padding:2rem; min-height:calc(100vh - 100px); }
-  section.active { display:block; }
-  h1 { margin-bottom:1rem; color:#000; }
-
-  .cards { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
-  .card {
-    background:#fff; border-radius:12px; padding:1.2rem; width:220px;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-    display:flex; flex-direction:column; align-items:center; text-align:center;
-    transition:transform .3s, box-shadow .3s;
-  }
-  .card:hover { transform:translateY(-5px); box-shadow:0 6px 16px rgba(0,0,0,.12); }
-  .card img { width:80px; height:80px; object-fit:contain; margin-bottom:.8rem; }
-  .card button {
-    margin-top:.5rem; padding:.5rem 1rem; border:none; border-radius:8px;
-    background:#ff4d4f; color:#fff; cursor:pointer; transition:background .3s;
-  }
-  .card button:hover { background:#e04345; }
-
-  form { display:flex; flex-direction:column; gap:.8rem; max-width:300px; margin:1rem auto; }
-  input, select { padding:.5rem; border-radius:8px; border:1px solid #ccc; width:100%; }
-  form button { background:#ff4d4f; color:#fff; border:none; padding:.5rem; border-radius:8px; cursor:pointer; }
-  form button:hover { background:#e04345; }
-
-  .modal {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,.6); justify-content:center; align-items:center; z-index:2000;
-  }
-  .modal-content { background:#fff; padding:2rem; border-radius:12px; max-width:500px; width:95%; }
-
-  .partida-card {
-    background:linear-gradient(180deg,#fff 0%,#fffaf9 100%);
-    border-radius:16px; padding:1.2rem; width:320px;
-    box-shadow:0 8px 28px rgba(0,0,0,.12);
-    text-align:center; transition:transform .35s, box-shadow .35s;
-    border:1px solid rgba(0,0,0,.04);
-  }
-  .partida-card:hover { transform:translateY(-6px); box-shadow:0 12px 36px rgba(0,0,0,.16); }
-  .partida-times { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:.8rem; }
-  .partida-times img { width:78px; height:78px; object-fit:contain; border-radius:10px; background:#fff; padding:6px; }
-  .partida-times span { font-size:1.4rem; font-weight:800; color:#ff4d4f; }
-  .escudo-placeholder {
-    width:78px; height:78px; border-radius:10px; display:flex; align-items:center; justify-content:center;
-    font-weight:700; color:#fff; font-size:1.6rem;
-  }
-
-  #modalJogadores { display:flex; flex-direction:column; gap:.6rem; max-height:300px; overflow:auto; margin:.6rem 0; }
-  .modal-jogador { display:flex; align-items:center; justify-content:space-between; background:#f8f8f8; border-radius:8px; padding:.5rem .8rem; }
-  .modal-jogador .info { display:flex; gap:.6rem; align-items:center; }
-  .modal-jogador button { background:#ff4d4f; color:#fff; border:none; padding:.3rem .6rem; border-radius:6px; cursor:pointer; }
-  .modal-jogador button:hover { background:#e04345; }
-
-  .home-header { display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:2rem; flex-wrap:wrap; }
-  .home-header img { height:160px; display:block; }
-
-  @media (max-width:720px){
-    .partida-card { width:95%; }
-    .card { width:45%; }
-    .home-header { flex-direction:column; }
-  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:#f7f7f7;color:#333}
+  header{position:fixed;top:0;left:0;width:100%;background:#fff;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;padding:.8rem 2rem;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+  header .logo img{height:50px}
+  nav a{margin-left:1.5rem;text-decoration:none;color:#333;font-weight:500;transition:color .3s}
+  nav a:hover{color:#ff4d4f}
+  main{padding-top:100px}
+  section{display:none;padding:2rem;min-height:calc(100vh - 100px)}
+  section.active{display:block}
+  h1{margin-bottom:1rem;color:#000}
+  .cards{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+  .card{background:#fff;border-radius:12px;padding:1.2rem;width:220px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .3s,box-shadow .3s}
+  .card:hover{transform:translateY(-5px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+  .card img{width:80px;height:80px;object-fit:contain;margin-bottom:.8rem}
+  .card button{margin-top:.5rem;padding:.5rem 1rem;border:none;border-radius:8px;background:#ff4d4f;color:#fff;cursor:pointer;transition:background .3s}
+  .card button:hover{background:#e04345}
+  form{display:flex;flex-direction:column;gap:.8rem;max-width:300px;margin:1rem auto}
+  input,select{padding:.5rem;border-radius:8px;border:1px solid #ccc;width:100%}
+  form button{background:#ff4d4f;color:#fff;border:none;padding:.5rem;border-radius:8px;cursor:pointer}
+  form button:hover{background:#e04345}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:2000}
+  .modal-content{background:#fff;padding:2rem;border-radius:12px;max-width:520px;width:95%}
+  .partida-card{background:linear-gradient(180deg,#ffffff 0%,#fffaf9 100%);border-radius:16px;padding:1.2rem;width:320px;box-shadow:0 8px 28px rgba(0,0,0,.12);text-align:center;transition:transform .35s,box-shadow .35s;border:1px solid rgba(0,0,0,.04)}
+  .partida-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(0,0,0,.16)}
+  .partida-times{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.8rem}
+  .partida-times img{width:78px;height:78px;object-fit:contain;border-radius:10px;background:#fff;padding:6px}
+  .partida-times span{font-size:1.4rem;font-weight:800;color:#ff4d4f}
+  .escudo-placeholder{width:78px;height:78px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.6rem}
+  #modalJogadores{display:flex;flex-direction:column;gap:.6rem;max-height:300px;overflow:auto;margin:.6rem 0}
+  .modal-jogador{display:flex;align-items:center;justify-content:space-between;background:#f8f8f8;border-radius:8px;padding:.5rem .8rem}
+  .modal-jogador .info{display:flex;gap:.6rem;align-items:center}
+  .modal-jogador button{background:#ff4d4f;color:#fff;border:none;padding:.3rem .6rem;border-radius:6px;cursor:pointer}
+  .modal-jogador button:hover{background:#e04345}
+  .home-header{display:flex;align-items:center;gap:1rem;justify-content:center;margin-bottom:2rem;flex-wrap:wrap}
+  .home-header img{height:160px}
+  @media (max-width:720px){.partida-card{width:95%}.card{width:45%}.home-header{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -136,23 +98,255 @@
   </section>
 </main>
 
-<!-- MODAL: Jogadores do Time -->
+<!-- Modal Time -->
 <div class="modal" id="modalTime">
   <div class="modal-content">
     <h2 id="modalTimeNome"></h2>
     <div id="modalJogadores"></div>
     <select id="addJogadorSelect"></select>
-    <div style="display:flex; gap:8px; margin-top:8px;">
+    <div style="display:flex;gap:8px;margin-top:8px;">
       <button id="addJogadorTime">Adicionar ao Time</button>
       <button type="button" onclick="fecharModal()">Fechar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Editar Jogador -->
+<!-- Modal Editar Jogador -->
 <div class="modal" id="modalEditarJogador">
   <div class="modal-content">
     <h2>Editar Jogador</h2>
     <form id="formEditarJogador">
       <input type="text" id="editarNome" placeholder="Nome" required>
-      <input type="
+      <input type="text" id="editarFuncao" placeholder="Função" required>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="fecharModalEditar()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* === LOGO embutida (WebP) === */
+const LOGO_DATA = "data:image/webp;base64,{{B64}}".replace("{{B64}}",
+"{{INLINE}}");
+/* === Navegação por hash (#home, #jogadores, ...) === */
+const sections = document.querySelectorAll('main section');
+function showSection(id){
+  sections.forEach(sec=>sec.classList.remove('active'));
+  const el = document.getElementById(id) || document.getElementById('home');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function handleHash(){ const id = (location.hash||'#home').substring(1); showSection(id); }
+window.addEventListener('hashchange', handleHash);
+document.addEventListener('DOMContentLoaded', ()=>{
+  // aplica logo
+  const lt = document.getElementById('logoTop');
+  const lh = document.getElementById('logoHome');
+  if(lt) lt.src = LOGO_DATA;
+  if(lh) lh.src = LOGO_DATA;
+  handleHash();
+  // carrega dados
+  atualizarJogadores(); atualizarTimes(); atualizarPartidas();
+});
+
+/* === Estado (LocalStorage) === */
+let jogadores = JSON.parse(localStorage.getItem('jogadores')||'[]');
+let times = JSON.parse(localStorage.getItem('times')||'[]');
+let partidas = JSON.parse(localStorage.getItem('partidas')||'[]');
+let timeSelecionado = null;
+let jogadorEditando = null;
+
+/* === Jogadores === */
+function atualizarJogadores(){
+  const lista = document.getElementById('listaJogadores');
+  lista.innerHTML = '';
+  if(!jogadores.length){ lista.innerHTML = '<p>Nenhum jogador cadastrado.</p>'; return; }
+  jogadores.forEach((j, idx)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `
+      <h3>${j.nome}</h3>
+      <p>${j.funcao}</p>
+      <div style="display:flex;gap:8px;">
+        <button onclick="abrirModalEditar(${idx})">Editar</button>
+        <button onclick="removerJogador(${idx})">Excluir</button>
+      </div>`;
+    lista.appendChild(card);
+  });
+}
+function abrirModalEditar(idx){
+  jogadorEditando = idx;
+  document.getElementById('editarNome').value = jogadores[idx].nome;
+  document.getElementById('editarFuncao').value = jogadores[idx].funcao;
+  document.getElementById('modalEditarJogador').style.display='flex';
+}
+function fecharModalEditar(){ document.getElementById('modalEditarJogador').style.display='none'; jogadorEditando=null; }
+document.getElementById('formEditarJogador').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(jogadorEditando!==null){
+    const novoNome = document.getElementById('editarNome').value.trim();
+    const novaFuncao = document.getElementById('editarFuncao').value.trim();
+    if(novoNome && novaFuncao){
+      jogadores[jogadorEditando].nome = novoNome;
+      jogadores[jogadorEditando].funcao = novaFuncao;
+      salvarTudo(); fecharModalEditar();
+    }
+  }
+});
+function removerJogador(idx){
+  // também remove o jogador dos times em que estiver
+  times = times.map(t=>({...t, jogadores:(t.jogadores||[]).filter(i=>i!==idx).map(i=> i>idx? i-1 : i)}));
+  jogadores.splice(idx,1); salvarTudo();
+}
+
+/* === Times === */
+function atualizarTimes(){
+  const lista = document.getElementById('listaTimes');
+  const sel1 = document.getElementById('time1');
+  const sel2 = document.getElementById('time2');
+  lista.innerHTML=''; sel1.innerHTML='<option value="">Time 1</option>'; sel2.innerHTML='<option value="">Time 2</option>';
+  times.forEach((t, idx)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.style.border = `3px solid ${t.cor}`;
+    card.innerHTML = `
+      <h3>${t.nome}</h3>
+      <div style="display:flex;gap:8px;">
+        <button onclick="abrirModal(${idx})">Gerenciar Jogadores</button>
+        <button onclick="removerTime(${idx})">Excluir</button>
+      </div>`;
+    lista.appendChild(card);
+    sel1.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+    sel2.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+  });
+}
+function removerTime(idx){ times.splice(idx,1); salvarTudo(); }
+
+/* === Partidas === */
+function atualizarPartidas(){
+  const lista = document.getElementById('listaPartidas');
+  const listaHome = document.getElementById('cardsPartidasHome');
+  lista.innerHTML=''; listaHome.innerHTML='';
+  if(!partidas.length){ listaHome.innerHTML='<p>Nenhuma partida agendada ainda.</p>'; return; }
+  partidas.forEach((p, idx)=>{
+    const cardAdmin = document.createElement('div');
+    cardAdmin.className='card';
+    cardAdmin.innerHTML = `
+      <h3>${p.time1} vs ${p.time2}</h3>
+      <p>${p.data} - ${p.local}</p>
+      <button onclick="removerPartida(${idx})">Excluir</button>`;
+    lista.appendChild(cardAdmin);
+
+    const cardHome = document.createElement('div');
+    cardHome.className='partida-card';
+    const time1Obj = times.find(t=>t.nome===p.time1);
+    const time2Obj = times.find(t=>t.nome===p.time2);
+    const escudo1 = time1Obj?.escudo
+      ? `<img src="${time1Obj.escudo}" alt="${p.time1}">`
+      : `<div class="escudo-placeholder" style="background:${time1Obj?.cor||'#999'}">${p.time1.charAt(0).toUpperCase()}</div>`;
+    const escudo2 = time2Obj?.escudo
+      ? `<img src="${time2Obj.escudo}" alt="${p.time2}">`
+      : `<div class="escudo-placeholder" style="background:${time2Obj?.cor||'#999'}">${p.time2.charAt(0).toUpperCase()}</div>`;
+    cardHome.innerHTML = `
+      <div class="partida-times">${escudo1}<span>X</span>${escudo2}</div>
+      <h3>${p.time1} vs ${p.time2}</h3>
+      <p><strong>Data:</strong> ${p.data}</p>
+      <p><strong>Local:</strong> ${p.local}</p>`;
+    listaHome.appendChild(cardHome);
+  });
+}
+function removerPartida(idx){ partidas.splice(idx,1); salvarTudo(); }
+
+/* === Persistência === */
+function salvarTudo(){
+  localStorage.setItem('jogadores', JSON.stringify(jogadores));
+  localStorage.setItem('times', JSON.stringify(times));
+  localStorage.setItem('partidas', JSON.stringify(partidas));
+  atualizarJogadores(); atualizarTimes(); atualizarPartidas();
+}
+
+/* === Forms === */
+document.getElementById('formJogador').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nome = document.getElementById('nomeJogador').value.trim();
+  const funcao = document.getElementById('funcaoJogador').value.trim();
+  if(!nome || !funcao) return;
+  jogadores.push({nome, funcao});
+  salvarTudo(); e.target.reset();
+});
+
+document.getElementById('formTime').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nome = document.getElementById('nomeTime').value.trim();
+  const cor = document.getElementById('corTime').value;
+  const escudoFile = document.getElementById('escudoTime').files[0];
+  const pushTime = (esc)=>{ times.push({nome, cor, escudo:esc||null, jogadores:[]}); salvarTudo(); };
+  if(escudoFile){
+    const reader = new FileReader();
+    reader.onload = ()=> pushTime(reader.result);
+    reader.readAsDataURL(escudoFile);
+  }else pushTime(null);
+  e.target.reset();
+});
+
+document.getElementById('formPartida').addEventListener('submit', e=>{
+  e.preventDefault();
+  const time1 = document.getElementById('time1').value;
+  const time2 = document.getElementById('time2').value;
+  const data = document.getElementById('dataPartida').value;
+  const local = document.getElementById('localPartida').value.trim();
+  if(time1 && time2 && time1!==time2 && data && local){
+    partidas.push({time1,time2,data,local});
+    salvarTudo(); e.target.reset();
+  }
+});
+
+/* === Modal Gerenciar Jogadores do Time === */
+function abrirModal(idx){
+  timeSelecionado = idx;
+  document.getElementById('modalTimeNome').innerText = times[idx].nome;
+  atualizarModalJogadores();
+  document.getElementById('modalTime').style.display='flex';
+}
+function fecharModal(){ document.getElementById('modalTime').style.display='none'; timeSelecionado=null; }
+function atualizarModalJogadores(){
+  const lista = document.getElementById('modalJogadores');
+  const sel = document.getElementById('addJogadorSelect');
+  lista.innerHTML=''; sel.innerHTML='';
+  jogadores.forEach((j, i)=> sel.innerHTML += `<option value="${i}">${j.nome} - ${j.funcao}</option>`);
+  const indices = times[timeSelecionado].jogadores || [];
+  if(!indices.length){ lista.innerHTML = '<p>Nenhum jogador neste time.</p>'; return; }
+  indices.forEach((i, pos)=>{
+    const j = jogadores[i];
+    if(!j) return;
+    const row = document.createElement('div');
+    row.className='modal-jogador';
+    row.innerHTML = `
+      <div class="info"><strong>${j.nome}</strong><span>(${j.funcao})</span></div>
+      <button onclick="removerJogadorDoTime(${pos})">Remover</button>`;
+    lista.appendChild(row);
+  });
+}
+document.getElementById('addJogadorTime').addEventListener('click', ()=>{
+  const sel = document.getElementById('addJogadorSelect');
+  const idxJog = Number(sel.value);
+  if(Number.isInteger(idxJog)){
+    const arr = times[timeSelecionado].jogadores || [];
+    if(!arr.includes(idxJog)){
+      arr.push(idxJog);
+      times[timeSelecionado].jogadores = arr;
+      salvarTudo(); atualizarModalJogadores();
+    }
+  }
+});
+function removerJogadorDoTime(pos){
+  const arr = times[timeSelecionado].jogadores || [];
+  arr.splice(pos,1);
+  times[timeSelecionado].jogadores = arr;
+  salvarTudo(); atualizarModalJogadores();
+}
+</script>
+</body>
+</html>
